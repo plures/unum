@@ -1,0 +1,23 @@
+{
+  "imports": {
+    "svelte": "npm:svelte@^5.0.0-next.1",
+    "svelte/action": "npm:svelte@^5.0.0-next.1/action",
+    "svelte/store": "npm:svelte@^5.0.0-next.1/store",
+    "unum/": "../../dist/",
+    "gun": "npm:gun@^0.2020.1240",
+    "std/": "https://deno.land/std@0.188.0/"
+  },
+  "tasks": {
+    "build": "deno run --allow-net --allow-read --allow-write --allow-env --unstable-ffi --allow-sys scripts/build.js",
+    "start": "deno run --allow-net --allow-read --allow-write --allow-env --unstable-ffi --allow-sys --watch server.ts"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+} 

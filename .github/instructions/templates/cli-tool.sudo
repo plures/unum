@@ -1,0 +1,5 @@
+# CLI-Tool Template (WIP)
+machine CliToolLifecycle {
+  state Init { on => { scaffold -> Ready } }
+  state Ready {}
+}

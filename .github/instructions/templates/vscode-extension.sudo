@@ -1,0 +1,746 @@
+###############################################################################
+# VSCode Extension Template
+# Purpose: Comprehensive template for creating production-ready VSCode extensions
+#          following modern best practices for security, performance, and UX
+# Author: Instructions-as-Code Pipeline  
+# Version: 1.0.0
+###############################################################################
+
+machine VsCodeExtensionLifecycle {
+
+  ###########################################################################
+  # STATE: Init - Project Foundation & Setup
+  ###########################################################################
+  state Init {
+    entry => [
+      action.setupProjectStructure,
+      action.createPackageJson,
+      action.configureActivationEvents
+    ]
+    guard => guard.structureValid
+    exit => action.commitFoundation
+    on => { foundation-ready -> KnowledgeEngineDetection }
+  }
+
+  ###########################################################################
+  # STATE: KnowledgeEngineDetection - Detect and Integrate Knowledge Engine
+  ###########################################################################
+  state KnowledgeEngineDetection {
+    entry => [
+      action.detectKnowledgeEngine,
+      action.detectMCPTools,
+      action.configureKnowledgeIntegration,
+      action.setupIntelligentFeatures
+    ]
+    guard => guard.knowledgeEngineAvailable
+    exit => action.commitKnowledgeIntegration
+    on => { 
+      knowledge-available -> KnowledgeEnhancedProcessing,
+      knowledge-unavailable -> Architecture
+    }
+  }
+
+  ###########################################################################
+  # STATE: KnowledgeEnhancedProcessing - Enhanced Processing with Knowledge Engine
+  ###########################################################################
+  state KnowledgeEnhancedProcessing {
+    entry => [
+      action.leverageKnowledgeBase,
+      action.enhanceWithMCPTools,
+      action.generateIntelligentSuggestions,
+      action.adaptToContext
+    ]
+    guard => guard.knowledgeIntegrationComplete
+    exit => action.commitEnhancedProcessing
+    on => { enhanced-ready -> Architecture }
+  }
+
+  ###########################################################################
+  # STATE: Architecture - Extension Host & Services
+  ###########################################################################
+  state Architecture {
+    entry => [
+      action.createActivationEntrypoint,
+      action.setupServicesLayer,
+      action.configureStateManagement,
+      action.addPerformanceOptimizations
+    ]
+    guard => guard.activationOptimal
+    exit => action.commitArchitecture
+    on => { architecture-ready -> Commands }
+  }
+
+  ###########################################################################
+  # STATE: Commands - Command Registration & Hygiene
+  ###########################################################################
+  state Commands {
+    entry => [
+      action.registerCoreCommands,
+      action.addCommandValidation,
+      action.implementProgressHandling,
+      action.setupConcurrencyGuards
+    ]
+    guard => guard.commandsSecure
+    exit => action.commitCommands
+    on => { commands-ready -> Views }
+  }
+
+  ###########################################################################
+  # STATE: Views - Tree Views & Data Management
+  ###########################################################################
+  state Views {
+    entry => [
+      action.createTreeViewProviders,
+      action.implementIncrementalRefresh,
+      action.addDataCaching,
+      action.setupApiThrottling
+    ]
+    guard => guard.viewsEfficient
+    exit => action.commitViews
+    on => { views-ready -> Webviews }
+  }
+
+  ###########################################################################
+  # STATE: Webviews - UI Components & Security
+  ###########################################################################
+  state Webviews {
+    entry => [
+      action.setupWebviewSecurity,
+      action.configureContentSecurityPolicy,
+      action.createMessageContracts,
+      action.bundleWebviewAssets,
+      action.implementAccessibility
+    ]
+    guard => guard.webviewsSecure
+    exit => action.commitWebviews
+    on => { webviews-ready -> Tooling }
+  }
+
+  ###########################################################################
+  # STATE: Tooling - Build, Test & Type Safety
+  ###########################################################################
+  state Tooling {
+    entry => [
+      action.setupBuildScripts,
+      action.configureTypeChecking,
+      action.createTestingSuite,
+      action.setupCoverageReporting,
+      action.addLintingConfiguration
+    ]
+    guard => guard.toolingComplete
+    exit => action.commitTooling
+    on => { tooling-ready -> Diagnostics }
+  }
+
+  ###########################################################################
+  # STATE: Diagnostics - Telemetry, Logging & Error Handling
+  ###########################################################################
+  state Diagnostics {
+    entry => [
+      action.setupTelemetryFramework,
+      action.createOutputChannel,
+      action.implementErrorReporting,
+      action.addDiagnosticTools,
+      action.setupSecretsManagement
+    ]
+    guard => guard.diagnosticsPrivacyCompliant
+    exit => action.commitDiagnostics
+    on => { diagnostics-ready -> Security }
+  }
+
+  ###########################################################################
+  # STATE: Security - Privacy & Dependency Management
+  ###########################################################################
+  state Security {
+    entry => [
+      action.auditDependencies,
+      action.implementContentSanitization,
+      action.configureLeastPrivilege,
+      action.setupSecretStorage,
+      action.documentSecurityMeasures
+    ]
+    guard => guard.securityAudited
+    exit => action.commitSecurity
+    on => { security-ready -> EntraAuthentication }
+  }
+
+  ###########################################################################
+  # STATE: EntraAuthentication - Microsoft Entra ID OAuth Integration
+  ###########################################################################
+  state EntraAuthentication {
+    entry => [
+      action.installMSALDependencies,
+      action.createAuthProviderInterface,
+      action.implementEntraAuthProvider,
+      action.createPATAuthWrapper,
+      action.buildUnifiedAuthService,
+      action.integrateWithExistingClient,
+      action.addAuthCommands,
+      action.implementBackgroundTokenRefresh,
+      action.createAuthStatusBar,
+      action.enhanceSetupWizard
+    ]
+    guard => guard.authenticationSecure
+    exit => action.commitAuthentication
+    on => { authentication-ready -> Release }
+  }
+
+  ###########################################################################
+  # STATE: Release - Packaging & Distribution
+  ###########################################################################
+  state Release {
+    entry => [
+      action.setupVersioning,
+      action.createChangelogTemplate,
+      action.configurePackagingPipeline,
+      action.setupValidationWorkflow,
+      action.addFeatureFlags
+    ]
+    guard => guard.releaseReady
+    exit => action.commitRelease
+    on => { release-ready -> Collaboration }
+  }
+
+  ###########################################################################
+  # STATE: Collaboration - Documentation & Process
+  ###########################################################################
+  state Collaboration {
+    entry => [
+      action.createContributionDocs,
+      action.setupArchitectureNotes,
+      action.addDebuggingGuides,
+      action.createIssueTemplates,
+      action.setupUserFeedbackLoop
+    ]
+    guard => guard.documentationComplete
+    exit => action.commitCollaboration
+    on => { collaboration-ready -> Ready }
+  }
+
+  ###########################################################################
+  # STATE: Ready - Extension Complete
+  ###########################################################################
+  state Ready {
+    entry => [
+      action.runFinalValidation,
+      action.generateQuickStart,
+      action.createPerformanceBenchmarks
+    ]
+    guard => guard.extensionProduction
+    exit => action.markComplete
+    on => { complete -> Ready }
+  }
+}
+
+###############################################################################
+# TEMPLATE CONFIGURATION
+###############################################################################
+
+## Project Structure Layout
+projectStructure:
+  src/
+    extension.ts           # Main activation entrypoint
+    commands/              # Command implementations
+    providers/             # Tree view and data providers
+    services/              # Business logic and API clients
+    webview/               # UI components and assets
+    utils/                 # Shared utilities
+  webview/
+    src/                   # Webview source (React/Svelte/Vanilla)
+    dist/                  # Bundled webview assets
+  tests/
+    unit/                  # Unit tests (Mocha/Jest)
+    integration/           # Extension Test Runner
+    webview/               # UI component tests
+  scripts/
+    build.js               # Build automation
+    diagnose.ts            # Debugging utilities
+  docs/
+    CONTRIBUTING.md        # Contribution guidelines
+    ARCHITECTURE.md        # System design notes
+    DEBUGGING.md           # Troubleshooting guide
+
+## Activation Events (Lazy Loading)
+activationEvents:
+  - onCommand:myext.activate
+  - onView:myext.treeView
+  - workspaceContains:**/*.myfile
+
+## Security CSP Template
+contentSecurityPolicy: |
+  default-src 'none';
+  img-src ${webview.cspSource} https:;
+  script-src 'nonce-${nonce}';
+  style-src ${webview.cspSource} 'unsafe-inline';
+  font-src ${webview.cspSource};
+
+## Performance Budgets
+performanceTargets:
+  activationTime: 100ms
+  commandResponseTime: 500ms
+  webviewLoadTime: 1000ms
+  memoryUsage: 50MB
+
+## Testing Strategy
+testingLayers:
+  unit: "Services, parsers, utilities"
+  integration: "Command registration, activation flow"
+  webview: "UI components, message contracts"
+  e2e: "Full extension workflows"
+
+## Telemetry Schema
+telemetryEvents:
+  - name: "command.executed"
+    properties: ["commandId", "duration", "success"]
+  - name: "webview.loaded"
+    properties: ["viewType", "loadTime"]
+  - name: "error.occurred"
+    properties: ["errorType", "stack", "context"]
+
+## Feature Flags
+featureFlags:
+  - experimentalFeatures: false
+  - betaWebviews: false
+  - advancedTelemetry: true
+
+## Build Configuration
+buildScripts:
+  compile: "tsc -p ./"
+  build:webview: "npm run build --prefix webview"
+  build:all: "npm run compile && npm run build:webview"
+  package: "vsce package --no-dependencies"
+  test: "npm run test:unit && npm run test:integration"
+
+## Dependencies Strategy
+dependencies:
+  production: "Minimal, audited, locked versions"
+  development: "Latest stable tooling"
+  security: "Regular npm audit, Dependabot enabled"
+
+## Entra ID Authentication Configuration
+entraidAuthentication:
+  enabled: true
+  clientId: "Use Microsoft Graph PowerShell client ID for broad compatibility"
+  authority: "https://login.microsoftonline.com/common"
+  scopes: ["https://app.vssps.visualstudio.com/user_impersonation"]
+  authFlow: "device-code"
+  tokenRefreshInterval: "30 minutes"
+  storageKey: "azuredevops.entra.refreshToken"
+  
+## Authentication Architecture
+authenticationArchitecture: |
+  src/auth/
+  ├── IAuthProvider.ts        # Interface abstraction for auth methods
+  ├── EntraAuthProvider.ts    # MSAL OAuth 2.0 implementation
+  ├── PATAuthProvider.ts      # Legacy PAT wrapper for compatibility
+  └── AuthService.ts          # Unified facade service for auth operations
+
+## Authentication Commands
+authenticationCommands:
+  - command: "azureDevOpsInt.signInWithEntraID"
+    title: "Sign In with Microsoft Entra ID"
+    category: "Azure DevOps Integration"
+  - command: "azureDevOpsInt.signOutFromEntraID"
+    title: "Sign Out from Entra ID"
+    category: "Azure DevOps Integration"
+  - command: "azureDevOpsInt.convertConnectionToEntraID"
+    title: "Convert Connection to Entra ID"
+    category: "Azure DevOps Integration"
+
+## Authentication Settings
+authenticationSettings:
+  preferredMethod: "entra-id"
+  fallbackToPAT: true
+  autoRefreshTokens: true
+  showAuthStatusBar: true
+
+## Device Code Flow UX
+deviceCodeFlowUX: |
+  When authenticating:
+  1. Display device code and verification URL
+  2. Offer "Copy Code" button to clipboard
+  3. Offer "Open Browser" button to launch verification URL
+  4. Show progress indicator during authentication
+  5. Display success/failure message with actionable guidance
+
+## Security Considerations
+authenticationSecurity:
+  - Use vscode.SecretStorage for refresh tokens (encrypted)
+  - Never store refresh tokens in settings.json
+  - Use public client flow (no client secrets)
+  - Validate tokens before use
+  - Implement proper token cleanup on sign-out
+  - Handle token expiration gracefully
+  - Clear intervals and resources in deactivate()
+
+###############################################################################
+# IMPLEMENTATION ACTIONS
+###############################################################################
+
+action.setupProjectStructure:
+  - Create directory structure following VSCode conventions
+  - Initialize package.json with extension metadata
+  - Configure TypeScript with strict settings
+  - Setup .vscodeignore and .gitignore
+
+action.createActivationEntrypoint:
+  - Implement activate() function as orchestrator
+  - Register commands via ExtensionContext
+  - Setup disposables management
+  - Add deactivate() cleanup
+
+action.setupWebviewSecurity:
+  - Configure strict CSP headers
+  - Implement nonce-based script loading
+  - Add HTML content sanitization
+  - Validate all webview messages
+
+action.setupTelemetryFramework:
+  - Respect VS Code telemetry settings
+  - Define event schemas
+  - Implement consent checking
+  - Add telemetry documentation
+
+action.configurePackagingPipeline:
+  - Setup vsce packaging automation
+  - Configure CI/CD validation
+  - Add smoke tests for packaged extension
+  - Implement signing for distribution
+
+action.installMSALDependencies:
+  - Add @azure/msal-node dependency to package.json
+  - Run npm install @azure/msal-node
+  - Verify MSAL version compatibility
+  - Document authentication requirements
+
+action.createAuthProviderInterface:
+  - Create src/auth/IAuthProvider.ts interface
+  - Define getAccessToken(), signIn(), signOut() methods
+  - Add isAuthenticated() and getAuthMethod() methods
+  - Define AuthResult interface for responses
+
+action.implementEntraAuthProvider:
+  - Create src/auth/EntraAuthProvider.ts
+  - Initialize PublicClientApplication with MSAL config
+  - Implement device code flow authentication
+  - Add silent token acquisition with cache
+  - Store refresh tokens in SecretStorage
+  - Handle token refresh automatically
+  - Implement proper error handling
+
+action.createPATAuthWrapper:
+  - Create src/auth/PATAuthProvider.ts
+  - Wrap existing PAT authentication
+  - Implement IAuthProvider interface
+  - Maintain backward compatibility
+  - Support legacy token storage
+
+action.buildUnifiedAuthService:
+  - Create src/auth/AuthService.ts facade
+  - Implement provider factory pattern
+  - Cache provider instances per connection
+  - Support both entra-id and pat methods
+  - Add unified getAccessToken method
+
+action.integrateWithExistingClient:
+  - Enhance Azure DevOps client for dual auth
+  - Implement getAuthHeaders() with method detection
+  - Add automatic token refresh on 401/403 errors
+  - Support Bearer and Basic auth headers
+  - Add retry logic for auth failures
+
+action.addAuthCommands:
+  - Register signInWithEntraID command
+  - Register signOutFromEntraID command
+  - Register convertConnectionToEntraID command
+  - Add commands to package.json contributions
+  - Configure preferredMethod setting
+
+action.implementBackgroundTokenRefresh:
+  - Create background refresh interval (30 minutes)
+  - Check Entra ID connections proactively
+  - Refresh tokens before expiration
+  - Handle refresh failures gracefully
+  - Clear interval in deactivate()
+
+action.createAuthStatusBar:
+  - Create status bar item for auth status
+  - Show current auth method (Entra ID/PAT)
+  - Display authentication state
+  - Add warning for unauthenticated state
+  - Implement click handler for auth actions
+
+action.enhanceSetupWizard:
+  - Add authentication method selection step
+  - Create quick pick for Entra ID vs PAT
+  - Show benefits of Entra ID (recommended)
+  - Implement device code flow in wizard
+  - Maintain PAT fallback option
+
+###############################################################################
+# GUARDS & VALIDATIONS
+###############################################################################
+
+guard.activationOptimal:
+  - Activation time under 100ms
+  - No synchronous file system operations
+  - Proper error handling in activate()
+  - All services properly disposed
+
+guard.webviewsSecure:
+  - CSP headers properly configured
+  - No inline scripts or styles
+  - Message validation implemented
+  - Accessibility standards met
+
+guard.securityAudited:
+  - No high/critical vulnerabilities
+  - Secrets properly stored
+  - External API calls documented
+  - Minimal privilege permissions
+
+guard.releaseReady:
+  - All tests passing
+  - Performance budgets met
+  - Documentation up to date
+  - CHANGELOG.md updated
+
+guard.authenticationSecure:
+  - MSAL dependency properly installed
+  - Auth provider interface implemented
+  - Entra ID provider supports device code flow
+  - Refresh tokens stored in SecretStorage
+  - PAT provider maintains compatibility
+  - Auth service facade complete
+  - Commands registered in package.json
+  - Background token refresh configured
+  - Status bar shows auth state
+  - Setup wizard includes auth selection
+  - No hardcoded client secrets
+  - Proper error handling implemented
+  - Token expiration handled gracefully
+
+###############################################################################
+# KNOWLEDGE ENGINE INTEGRATION ACTIONS
+###############################################################################
+
+action.detectKnowledgeEngine:
+  - Check for Knowledge Engine extension installation
+  - Verify extension is active and running
+  - Retrieve available capabilities and features
+  - Store knowledge engine status in context
+
+action.detectMCPTools:
+  - Scan for MCP tools installation
+  - Verify MCP server is running
+  - List available MCP tools and capabilities
+  - Store MCP tools status in context
+
+action.configureKnowledgeIntegration:
+  - Configure knowledge base connections
+  - Setup intelligent search capabilities
+  - Initialize context-aware processing
+  - Enable dynamic template adaptation
+
+action.setupIntelligentFeatures:
+  - Enable intelligent content suggestions
+  - Setup context-aware validation
+  - Configure adaptive template generation
+  - Initialize knowledge-enhanced workflows
+
+action.leverageKnowledgeBase:
+  - Query knowledge base for relevant information
+  - Apply intelligent content recommendations
+  - Enhance templates with contextual data
+  - Optimize based on historical patterns
+
+action.enhanceWithMCPTools:
+  - Integrate available MCP tools
+  - Enhance processing with external capabilities
+  - Apply cross-platform tool orchestration
+  - Leverage specialized tool functions
+
+action.generateIntelligentSuggestions:
+  - Generate context-aware suggestions
+  - Provide intelligent recommendations
+  - Adapt content based on user patterns
+  - Optimize for maximum impact
+
+action.adaptToContext:
+  - Adapt templates to current context
+  - Apply dynamic configuration
+  - Optimize for available tools
+  - Enhance user experience
+
+###############################################################################
+# KNOWLEDGE ENGINE INTEGRATION GUARDS
+###############################################################################
+
+guard.knowledgeEngineAvailable:
+  - Knowledge Engine extension is installed
+  - Extension is active and running
+  - Required capabilities are available
+  - Integration is properly configured
+
+guard.knowledgeIntegrationComplete:
+  - Knowledge base integration is active
+  - MCP tools are properly configured
+  - Intelligent features are enabled
+  - Context adaptation is working
+
+###############################################################################
+# KNOWLEDGE ENGINE CONFIGURATION
+###############################################################################
+
+## Knowledge Engine Integration Settings
+knowledgeEngineIntegration:
+  enabled: true
+  capabilities: ["search", "query", "knowledge-base", "intelligent-suggestions"]
+  mcpTools: ["context-provider", "tool-orchestrator", "cross-platform-support"]
+  lastUpdated: "2024-01-01T00:00:00Z"
+
+## Integration Points
+integrationPoints:
+  - "Intelligent extension development based on knowledge base"
+  - "Context-aware command and feature suggestions"
+  - "Dynamic capability detection and utilization"
+  - "Enhanced validation with knowledge engine insights"
+  - "Cross-platform tool integration via MCP"
+  - "Adaptive processing based on available tools"
+  - "Intelligent error handling and suggestions"
+  - "Context-aware documentation generation"
+
+## Knowledge Engine Features
+knowledgeEngineFeatures:
+  intelligentSearch: true
+  naturalLanguageQuery: true
+  knowledgeBase: true
+  contextAware: true
+  adaptiveTemplates: true
+
+## MCP Tools Integration
+mcpToolsIntegration:
+  enabled: true
+  availableTools: ["context-provider", "tool-orchestrator", "cross-platform-support"]
+  crossPlatformSupport: true
+  toolOrchestration: true
+
+## Enhanced Extension Capabilities
+enhancedCapabilities:
+  - "Intelligent extension development based on knowledge base"
+  - "Context-aware command and feature suggestions"
+  - "Dynamic capability detection and utilization"
+  - "Enhanced validation with knowledge engine insights"
+  - "Cross-platform tool integration via MCP"
+  - "Adaptive processing based on available tools"
+  - "Intelligent error handling and suggestions"
+  - "Context-aware documentation generation"
+  - "Intelligent activation event optimization"
+  - "Adaptive performance tuning"
+
+###############################################################################
+# ENTRA ID AUTHENTICATION IMPLEMENTATION EXAMPLES
+###############################################################################
+
+## IAuthProvider Interface Example
+IAuthProviderInterface: |
+  export interface IAuthProvider {
+    initialize(): Promise<void>;
+    getAccessToken(): Promise<string | null>;
+    signIn(): Promise<boolean>;
+    signOut(): Promise<void>;
+    isAuthenticated(): Promise<boolean>;
+    getAuthMethod(): string;
+  }
+
+## EntraAuthProvider Implementation Pattern
+EntraAuthProviderPattern: |
+  - Initialize PublicClientApplication with MSAL config
+  - Use device code flow for user authentication
+  - Store refresh tokens in VS Code SecretStorage
+  - Implement silent token acquisition with cache
+  - Handle token refresh automatically on expiration
+  - Provide clear user feedback during auth flow
+
+## PATAuthProvider Wrapper Pattern
+PATAuthProviderPattern: |
+  - Wrap existing PAT token storage
+  - Implement IAuthProvider interface for consistency
+  - Maintain backward compatibility with legacy code
+  - Support same getAccessToken() interface
+
+## AuthService Facade Pattern
+AuthServiceFacadePattern: |
+  - Factory method: getProvider(connectionId, authMethod)
+  - Cache provider instances per connection
+  - Unified getAccessToken() for all auth types
+  - Support both 'entra-id' and 'pat' methods
+
+## Azure DevOps Client Integration Pattern
+AzureClientIntegrationPattern: |
+  - Add getAuthHeaders() method with auth method detection
+  - Return Bearer token for Entra ID
+  - Return Basic auth for PAT
+  - Implement automatic retry on 401/403 with token refresh
+  - Handle auth errors gracefully
+
+## Command Registration Example
+CommandRegistrationExample: |
+  context.subscriptions.push(
+    vscode.commands.registerCommand('azureDevOpsInt.signInWithEntraID', async () => {
+      const provider = await authService.getProvider('default', 'entra-id');
+      const success = await provider.signIn();
+      if (success) {
+        vscode.window.showInformationMessage('Successfully signed in with Entra ID');
+      }
+    })
+  );
+
+## Background Token Refresh Pattern
+BackgroundRefreshPattern: |
+  - Set interval for 30 minutes
+  - Check all Entra ID connections
+  - Proactively refresh tokens before expiration
+  - Handle refresh failures with user notification
+  - Clear interval in deactivate() function
+
+## Setup Wizard Enhancement
+SetupWizardEnhancement: |
+  - Add authentication method selection as first step
+  - Show Entra ID as recommended option
+  - Explain benefits: "OAuth 2.0 with automatic token refresh"
+  - Maintain PAT option: "Traditional token-based authentication"
+  - Guide user through device code flow for Entra ID
+  - Fall back to PAT setup if user prefers
+
+## Testing Strategy for Authentication
+AuthenticationTestingStrategy:
+  unit:
+    - Test each auth provider independently
+    - Mock MSAL PublicClientApplication
+    - Test token refresh logic
+    - Test error handling paths
+  integration:
+    - Test auth service facade
+    - Mock VS Code SecretStorage
+    - Test provider factory
+    - Test command registration
+  e2e:
+    - Test complete Entra ID flow
+    - Test PAT fallback
+    - Test token expiration scenarios
+    - Test multi-machine sync behavior
+
+## Common Pitfalls to Avoid
+AuthenticationPitfalls:
+  - "Never hardcode client secrets - use public client flow"
+  - "Never sync refresh tokens across machines - security risk"
+  - "Always implement automatic token refresh on 401 errors"
+  - "Always clear intervals in deactivate() to prevent leaks"
+  - "Always use SecretStorage, never settings.json for tokens"
+  - "Always handle authentication failures gracefully"
+  - "Always validate token scope matches API requirements"
+
+###############################################################################
+# END OF TEMPLATE
+###############################################################################

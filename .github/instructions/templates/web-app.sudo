@@ -1,0 +1,5 @@
+# Web-App Template (WIP)
+machine WebAppLifecycle {
+  state Init { on => { scaffold -> Ready } }
+  state Ready {}
+}

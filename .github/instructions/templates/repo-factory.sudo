@@ -1,0 +1,833 @@
+###############################################################################
+# Repo Factory Template
+# Purpose: AI-orchestrated repository template that bootstraps and governs a
+#          software project's entire lifecycle — from requirement intake to
+#          release, operations, and continuous improvement — using a single
+#          FSM-driven pipeline. Designed to run immediately when used as a
+#          GitHub repository template so every new repo is born with guidance,
+#          automation, and governance baked in.
+# Author: Instructions-as-Code Pipeline
+# Version: 0.1.0
+###############################################################################
+
+machine RepoFactoryTemplate {
+
+  ###########################################################################
+  # STATE: Init - Bootstrap context & template metadata
+  ###########################################################################
+  state Init {
+    entry => [
+      action.ensureTemplateContext,
+      action.bootstrapRepoMetadata,
+      action.enableAiAssistants,
+      action.seedLifecycleBacklog
+    ]
+    guard => guard.bootstrapReady
+    exit  => action.commitBootstrap
+    on    => { bootstrap-complete -> KnowledgeEnablement }
+  }
+
+  ###########################################################################
+  # STATE: KnowledgeEnablement - Detect and wire-up AI/MCP capabilities
+  ###########################################################################
+  state KnowledgeEnablement {
+    entry => [
+      action.detectKnowledgeEngine,
+      action.detectMCPTools,
+      action.configureKnowledgeIntegration,
+      action.publishAiOperatingGuide
+    ]
+    guard => guard.knowledgePlatformReady
+    exit  => action.commitKnowledgeEnablement
+    on    => {
+      knowledge-enabled -> RequirementIntake,
+      knowledge-missing -> ManualFallback
+    }
+  }
+
+  ###########################################################################
+  # STATE: ManualFallback - Provide non-AI path when capabilities unavailable
+  ###########################################################################
+  state ManualFallback {
+    entry => [
+      action.generateManualPlaybooks,
+      action.highlightAiDependencies,
+      action.scheduleEnablementRetro
+    ]
+    guard => guard.manualPlaybookAcknowledged
+    exit  => action.commitManualFallback
+    on    => { manual-readiness -> RequirementIntake }
+  }
+
+  ###########################################################################
+  # STATE: RequirementIntake - Capture product vision & requirements
+  ###########################################################################
+  state RequirementIntake {
+    entry => [
+      action.captureProductVision,
+      action.elicitFunctionalRequirements,
+      action.elicitNonFunctionalRequirements,
+      action.mapStakeholders
+    ]
+    guard => guard.requirementDraftComplete
+    exit  => action.commitRequirementIntake
+    on    => { requirements-captured -> RequirementValidation }
+  }
+
+  ###########################################################################
+  # STATE: RequirementValidation - Validate & prioritize requirements
+  ###########################################################################
+  state RequirementValidation {
+    entry => [
+      action.prioritizeBacklog,
+      action.linkRequirementsToObjectives,
+      action.createAcceptanceCriteria,
+      action.obtainStakeholderApproval
+    ]
+    guard => guard.requirementsApproved
+    exit  => action.commitRequirementValidation
+    on    => { requirements-approved -> RepositoryScaffolding }
+  }
+
+  ###########################################################################
+  # STATE: RepositoryScaffolding - Build repo structure & conventions
+  ###########################################################################
+  state RepositoryScaffolding {
+    entry => [
+      action.createRepositorySkeleton,
+      action.installToolingConfigs,
+      action.generateContributionGuides,
+      action.provisionTemplateSecrets
+    ]
+    guard => guard.scaffoldReady
+    exit  => action.commitRepositoryScaffold
+    on    => { scaffold-complete -> WorkflowOrchestration }
+  }
+
+  ###########################################################################
+  # STATE: WorkflowOrchestration - Configure automation & policies
+  ###########################################################################
+  state WorkflowOrchestration {
+    entry => [
+      action.configureLintingWorkflows,
+      action.configureTestingWorkflows,
+      action.configureReleaseAutomation,
+      action.configureGovernancePolicies
+    ]
+    guard => guard.workflowsPassing
+    exit  => action.commitWorkflowOrchestration
+    on    => { workflows-ready -> DesignAuthoring }
+  }
+
+  ###########################################################################
+  # STATE: DesignAuthoring - Produce architecture & design assets
+  ###########################################################################
+  state DesignAuthoring {
+    entry => [
+      action.generateArchitectureBlueprint,
+      action.mapSystemInterfaces,
+      action.createDomainModels,
+      action.publishDesignReviewAgenda
+    ]
+    guard => guard.designBaselineReady
+    exit  => action.commitDesignArtifacts
+    on    => { design-complete -> TestPlanning }
+  }
+
+  ###########################################################################
+  # STATE: TestPlanning - Author test strategy and suites
+  ###########################################################################
+  state TestPlanning {
+    entry => [
+      action.defineTestStrategy,
+      action.generateTestScaffolds,
+      action.enableQualityAutomation,
+      action.linkTestsToRequirements
+    ]
+    guard => guard.testPlanApproved
+    exit  => action.commitTestPlans
+    on    => { tests-planned -> ImplementationEnablement }
+  }
+
+  ###########################################################################
+  # STATE: ImplementationEnablement - Prepare code delivery workflows
+  ###########################################################################
+  state ImplementationEnablement {
+    entry => [
+  action.generateFeatureBoards,
+  action.scaffoldCoreImplementation,
+      action.setupPairingRotations,
+      action.enableAiCodingCompanions
+    ]
+    guard => guard.implementationReady
+    exit  => action.commitImplementationEnablement
+    on    => { implementation-ready -> QualityAutomation }
+  }
+
+  ###########################################################################
+  # STATE: QualityAutomation - Execute lint, tests, security gates
+  ###########################################################################
+  state QualityAutomation {
+    entry => [
+      action.runLintingSuite,
+      action.runTestSuite,
+      action.runSecurityScans,
+      action.publishQualityReport
+    ]
+    guard => guard.qualityGatePassed
+    exit  => action.commitQualityResults
+    on    => {
+      quality-green -> ReleaseEngineering,
+      quality-red   -> FixWorkstream
+    }
+  }
+
+  ###########################################################################
+  # STATE: ReleaseEngineering - Versioning, tagging, release notes
+  ###########################################################################
+  state ReleaseEngineering {
+    entry => [
+      action.bumpSemanticVersion,
+      action.generateReleaseNotes,
+      action.createDistributionArtifacts,
+      action.scheduleAnnouncement
+    ]
+    guard => guard.releaseChecklistComplete
+    exit  => action.commitRelease
+    on    => { release-ready -> OperationsEnablement }
+  }
+
+  ###########################################################################
+  # STATE: OperationsEnablement - Ops, support, & observability setup
+  ###########################################################################
+  state OperationsEnablement {
+    entry => [
+      action.provisionRunbooks,
+      action.configureMonitoring,
+      action.setupIncidentResponse,
+      action.publishSupportPlaybooks
+    ]
+    guard => guard.operationsReady
+    exit  => action.commitOperationsEnablement
+    on    => { operations-ready -> ContinuousImprovement }
+  }
+
+  ###########################################################################
+  # STATE: ContinuousImprovement - Metrics & Kaizen loops
+  ###########################################################################
+  state ContinuousImprovement {
+    entry => [
+      action.collectLifecycleMetrics,
+      action.runRetrospectives,
+      action.curateImprovementBacklog,
+      action.trainAiOnProjectHistory
+    ]
+    guard => guard.improvementCycleComplete
+    exit  => action.commitContinuousImprovement
+    on    => { cycle-complete -> LifecycleCommandCenter }
+  }
+
+  ###########################################################################
+  # STATE: LifecycleCommandCenter - Ongoing orchestration hub
+  ###########################################################################
+  state LifecycleCommandCenter {
+    entry => [
+      action.activateChatOpsCommands,
+      action.monitorValueStream,
+      action.coordinateWorkstreams,
+      action.broadcastLifecycleStatus
+    ]
+    guard => guard.commandCenterOperational
+    exit  => action.commitLifecycleActivation
+    on    => {
+      new-requirements -> RequirementIntake,
+      incident-raised  -> OperationsEnablement,
+      experiment-ready -> DesignAuthoring
+    }
+  }
+
+  ###########################################################################
+  # STATE: FixWorkstream - Resolve issues uncovered by quality gates
+  ###########################################################################
+  state FixWorkstream {
+    entry => [
+      action.analyzePipelineFailures,
+      action.generateFixPlan,
+      action.implementFixes,
+      action.updateRetrospectiveLog
+    ]
+    guard => guard.fixPlanExecuted
+    exit  => action.commitFixes
+    on    => { fixes-committed -> QualityAutomation }
+  }
+}
+
+###############################################################################
+# TEMPLATE OVERVIEW
+###############################################################################
+
+templateNarrative: |
+  The Repo Factory Template is "one AI-generated template to rule them all". It
+  ensures every repository created from this template launches with a
+  deterministic, AI-assisted pipeline that governs requirements, design, code,
+  testing, releases, and operations from day zero. The FSM above is executed by
+  the instruction pipeline so that maintainers receive actionable guidance,
+  generated assets, and governance artifacts at each step of the lifecycle.
+
+###############################################################################
+# AI ORCHESTRATION CONFIGURATION
+###############################################################################
+
+aIOrchestrator:
+  capabilities:
+    - "Natural-language requirement capture"
+    - "Architecture synthesis & design critiques"
+    - "Test generation & coverage analysis"
+    - "Secure coding guardrails"
+    - "Release choreography & communications"
+    - "Lifecycle analytics & continuous learning"
+  integrations:
+    knowledgeEngine: true
+    mcpTools:
+      - "planning-assistant"
+      - "design-reviewer"
+      - "test-orchestrator"
+      - "release-conductor"
+      - "ops-sentinel"
+  handoffPolicy: |
+    Every state exposes AI-generated artifacts alongside human review
+    checklists. Guards only pass when both AI output and steward approval are
+    present, ensuring symbiotic human+AI operation.
+
+###############################################################################
+# REQUIREMENTS WORKFLOW
+###############################################################################
+
+requirementsWorkflow:
+  artefacts:
+    - name: "vision.md"
+      description: "Product vision sourced from RequirementIntake state"
+    - name: "requirements/backlog.yml"
+      description: "Prioritized backlog with acceptance criteria"
+    - name: "stakeholders.md"
+      description: "RACI matrix auto-populated from stakeholder mapping"
+  approvals:
+    - "product-owner"
+    - "tech-lead"
+    - "qa-lead"
+  chatOps:
+    - command: "/requirement capture <context>"
+      result: "Triggers RequirementIntake with AI-facilitated interview"
+
+###############################################################################
+# REPOSITORY STRUCTURE & SCAFFOLDING
+###############################################################################
+
+repositoryStructure:
+  src/
+    __init__.placeholder: "Language-agnostic placeholder to be replaced"
+    features/: "Feature-specific modules"
+    infrastructure/: "Runtime adapters"
+  docs/
+    vision.md: "Vision document from RequirementIntake"
+    architecture/: "Diagrams & models from DesignAuthoring"
+    decisions/: "ADR log auto-generated via ChatOps"
+  tests/
+    unit/: "Generated scaffolds from TestPlanning"
+    integration/: "Workflow-driven integration tests"
+    security/: "Static analysis policies"
+  .github/
+    workflows/: "CI/CD, lint, format, release, governance workflows"
+  scripts/: "Automation scripts created by WorkflowOrchestration"
+  ops/
+    runbooks/: "Operational playbooks"
+    dashboards/: "Observability configuration"
+    incidents/: "Incident response templates"
+  meta/
+    backlog/: "Lifecycle backlog exported from AI orchestration"
+    metrics/: "Continuous improvement data"
+
+###############################################################################
+# WORKFLOW CATALOG (WHEN TO DO WHAT)
+###############################################################################
+
+workflowCatalog:
+  linting:
+    trigger: ["pull_request", "push:main"]
+    tooling: ["eslint", "prettier", "stylelint"]
+    policy: "Blocking"
+  testing:
+    trigger: ["pull_request", "push", "schedule@daily"]
+    matrix: ["unit", "integration", "contract", "security"]
+    policy: "Blocking for PR, advisory for nightly schedule"
+  security:
+    trigger: ["schedule@daily", "push:main"]
+    tooling: ["sast", "dependency-review", "secret-scan"]
+  formatting:
+    trigger: ["pull_request"]
+    tooling: ["prettier --check", "ruff --check"]
+  versioning:
+    trigger: "workflow_call from ReleaseEngineering"
+    policy: "MINOR bump on feature, PATCH on fix, MAJOR on breaking change"
+  release:
+    trigger: ["workflow_dispatch", "tag"]
+    outputs: ["release-notes.md", "changelog", "artifact.zip"]
+  issueAutomation:
+    trigger: "issue_comment[/plan|/scope|/ready]"
+    result: "Creates linked requirement/design/test issues"
+  branchAutomation:
+    trigger: "chatOps /branch <type>"
+    strategy: ["main", "develop", "feature/*", "release/*", "hotfix/*"]
+
+###############################################################################
+# QUALITY GATES & GOVERNANCE
+###############################################################################
+
+qualityGates:
+  linting: "No warnings on protected branches"
+  tests: "Minimum 90% coverage on critical modules"
+  security: "No high vulnerabilities or secret leaks"
+  docs: "Architecture docs auto-synced within 24h"
+  reviews: "Dual approval (tech + quality) required"
+  aiAudits: "AI suggestions captured in ADR when accepted"
+
+governancePolicies:
+  pullRequest:
+    template: ".github/pull_request_template.md"
+    requiredLabels: ["scope/feature", "impact/low|medium|high"]
+    checks: ["lint", "tests", "security", "docs"]
+  branching:
+    strategy: "Trunk+short-lived feature branches"
+    protections:
+      main: ["require PR", "require checks", "enforce administrators"]
+      develop: ["require PR", "auto-merge allowed"]
+  decisionRecords:
+    storage: "docs/decisions/ADR-XXXX.md"
+    policy: "All architectural decisions captured within 48h"
+
+###############################################################################
+# RELEASE & OPERATIONS PLAYBOOK
+###############################################################################
+
+releasePlaybook:
+  steps:
+    - "Run QualityAutomation state"
+    - "Trigger ReleaseEngineering workflow"
+    - "Publish release notes and changelog"
+    - "Notify stakeholders via ChatOps"
+    - "Schedule post-release health check"
+  channels: ["GitHub Releases", "Slack", "Email", "Status Page"]
+
+operationsPlaybook:
+  monitoring:
+    tools: ["Prometheus", "Grafana", "OpenTelemetry"]
+    dashboards: ["Lifecycle Overview", "Quality Gates", "Deployment Health"]
+  incidentResponse:
+    severityLevels: ["SEV1", "SEV2", "SEV3"]
+    communication: ["Slack #incidents", "Incident Commander", "Postmortem"]
+  support:
+    hours: "24/5 follow-the-sun"
+    knowledgeBase: "ops/runbooks/README.md"
+
+###############################################################################
+# METRICS & CONTINUOUS IMPROVEMENT
+###############################################################################
+
+metricsCatalog:
+  dora:
+    - "deployment_frequency"
+    - "lead_time_for_changes"
+    - "change_failure_rate"
+    - "time_to_recovery"
+  compliance:
+    - "policy_adherence_score"
+    - "security_vulnerability_count"
+  quality:
+    - "test_coverage_trend"
+    - "lint_warning_delta"
+  velocity:
+    - "story_points_completed"
+    - "cycle_time_distribution"
+
+continuousImprovementCadence:
+  retrospectives: "Bi-weekly"
+  aiModelUpdates: "Monthly based on repo telemetry"
+  stakeholderReviews: "Quarterly value-stream review"
+
+###############################################################################
+# CHATOPS COMMANDS
+###############################################################################
+
+chatOpsCommands:
+  "/plan sprint <name>":
+    action: "Generate AI-assisted sprint plan"
+    permissions: ["product-owner", "scrum-master"]
+  "/scope feature <requirement-id>":
+    action: "Trigger DesignAuthoring & TestPlanning states for feature"
+    permissions: ["tech-lead", "product-owner"]
+  "/ready release <version>":
+    action: "Initiate ReleaseEngineering workflow"
+    permissions: ["release-manager", "tech-lead"]
+  "/ops status":
+    action: "Surface operational dashboard snapshot"
+    permissions: ["sre", "support-lead", "factory-owner"]
+  "/improve record <insight>":
+    action: "Append insight to ContinuousImprovement backlog"
+    permissions: ["all-stakeholders"]
+
+###############################################################################
+# ACTION DEFINITIONS
+###############################################################################
+
+action.ensureTemplateContext:
+  - Validate issue or repo metadata for context
+  - Capture template selection parameters
+  - Persist context to meta/bootstrap.json
+
+action.bootstrapRepoMetadata:
+  - Populate README with template overview
+  - Create LICENSE and CODE_OF_CONDUCT defaults
+  - Initialize CHANGELOG with Unreleased section
+
+action.enableAiAssistants:
+  - Configure .copilot and prompt-engineering files
+  - Register default AI prompts for lifecycle states
+  - Document usage in docs/ai-assist.md
+
+action.seedLifecycleBacklog:
+  - Create meta/backlog/initial.md with starter stories
+  - Include requirement, design, test, ops swim-lanes
+  - Assign default owners from stakeholder map
+
+action.publishAiOperatingGuide:
+  - Generate docs/ai-operating-guide.md
+  - Outline capabilities, limits, and escalation paths
+  - Link to knowledge engine quickstart
+
+action.generateManualPlaybooks:
+  - Produce manual instructions when AI not available
+  - Highlight tooling prerequisites and install steps
+  - Provide escalation instructions for AI enablement
+
+action.captureProductVision:
+  - Run AI-guided interview using issue context
+  - Produce docs/vision.md with problem, outcome, KPIs
+  - Link to business drivers in meta/backlog
+
+action.elicitFunctionalRequirements:
+  - Generate numbered functional requirement list
+  - Map requirements to features in backlog
+  - Store in requirements/backlog.yml
+
+action.elicitNonFunctionalRequirements:
+  - Capture performance, security, compliance needs
+  - Define measurable thresholds and monitoring hooks
+  - Record in requirements/backlog.yml under NFR section
+
+action.mapStakeholders:
+  - Identify stakeholders and roles
+  - Populate docs/stakeholders.md with RACI
+  - Create GitHub team suggestions where possible
+
+action.prioritizeBacklog:
+  - Apply WSJF or MoSCoW prioritization via AI suggestion
+  - Mark priorities in backlog file
+  - Capture rationale in docs/decisions/priority-adr.md
+
+action.linkRequirementsToObjectives:
+  - Map requirements to OKRs or strategic goals
+  - Update docs/vision.md with traceability table
+
+action.createAcceptanceCriteria:
+  - Generate Gherkin-style criteria for each requirement
+  - Persist next to requirement definition
+
+action.obtainStakeholderApproval:
+  - Issue ChatOps /approve prompts to stakeholders
+  - Capture approvals in meta/approvals.json
+
+action.createRepositorySkeleton:
+  - Materialize repositoryStructure directories/files
+  - Populate README sections and placeholders
+  - Create sample module + tests to smoke-check pipelines
+
+action.installToolingConfigs:
+  - Drop ESLint, Prettier, Vitest, Commitlint configs
+  - Configure Renovate/Dependabot defaults
+  - Add .editorconfig and .gitignore patterns
+
+action.generateContributionGuides:
+  - Write CONTRIBUTING.md with AI usage guidance
+  - Add docs/contributing/quickstart.md
+  - Create CODEOWNERS mapping from stakeholders
+
+action.provisionTemplateSecrets:
+  - Document required secrets in .github/template-secrets.md
+  - Provide CLI to request secrets from platform team
+
+action.configureLintingWorkflows:
+  - Add .github/workflows/lint.yml with matrix strategy
+  - Include formatting and static analysis jobs
+  - Configure chat notification on failure
+
+action.configureTestingWorkflows:
+  - Add .github/workflows/test.yml with multi-stage tests
+  - Encode caching and artifact upload for reports
+
+action.configureReleaseAutomation:
+  - Add .github/workflows/release.yml for versioning & publishing
+  - Wire semver summary to ReleaseEngineering state
+
+action.configureGovernancePolicies:
+  - Implement branch protection via policy-as-code file
+  - Encode merge rules and minimum approvals
+
+action.generateArchitectureBlueprint:
+  - Create docs/architecture/system-context.md
+  - Produce C4 diagrams using AI modeling
+
+action.mapSystemInterfaces:
+  - List external dependencies and API contracts
+  - Generate OpenAPI or AsyncAPI stubs where relevant
+
+action.createDomainModels:
+  - Produce domain model diagrams or schemas
+  - Store in docs/architecture/domain-model.md
+
+action.publishDesignReviewAgenda:
+  - Draft design review checklist and timeline
+  - Schedule calendar invite via integration hook
+
+action.defineTestStrategy:
+  - Outline testing quadrants and exit criteria
+  - Document in tests/TEST-STRATEGY.md
+
+action.generateTestScaffolds:
+  - Create test skeletons aligned with requirements
+  - Configure coverage thresholds and reporters
+
+action.enableQualityAutomation:
+  - Setup pre-commit hooks and QA dashboards
+  - Register test coverage upload to metrics
+
+action.linkTestsToRequirements:
+  - Update backlog with requirement -> test references
+  - Enforce traceability in guard.testPlanApproved
+
+action.generateFeatureBoards:
+  - Create GitHub Projects board with swim-lanes
+  - Pre-populate automation for status transitions
+
+action scaffoldCoreImplementation:
+  - Generate baseline modules from design blueprints
+  - Provide TODO markers for team to flesh out
+
+action.setupPairingRotations:
+  - Create schedule for pair/mob programming
+  - Document in docs/process/pairing.md
+
+action.enableAiCodingCompanions:
+  - Configure IDE settings for AI pair assistance
+  - Add prompts for consistent commit messages
+
+action.runLintingSuite:
+  - Execute lint workflow locally for dry-run
+  - Capture results in meta/reports/lint.json
+
+action.runTestSuite:
+  - Execute test workflow matrix in --runInBand mode
+  - Publish coverage badge to README placeholder
+
+action.runSecurityScans:
+  - Trigger dependency review, SAST, IaC scans
+  - Store findings in meta/reports/security.json
+
+action.publishQualityReport:
+  - Aggregate lint/test/security outputs
+  - Update docs/status/quality.md with summary
+
+action.bumpSemanticVersion:
+  - Determine version bump based on change type
+  - Update package metadata and CHANGELOG
+
+action.generateReleaseNotes:
+  - Compile AI-assisted release narrative
+  - Attach testing evidence and known issues
+
+action.createDistributionArtifacts:
+  - Package build outputs or infrastructure bundles
+  - Upload to release assets bucket
+
+action.scheduleAnnouncement:
+  - Prepare communications for stakeholders
+  - Schedule send via integrated channels
+
+action.provisionRunbooks:
+  - Create ops/runbooks for key scenarios
+  - Ensure runbooks reference monitoring dashboards
+
+action.configureMonitoring:
+  - Setup metrics pipelines and dashboards
+  - Configure alert thresholds per quality gates
+
+action.setupIncidentResponse:
+  - Define incident command structure and templates
+  - Create postmortem.yaml template
+
+action.publishSupportPlaybooks:
+  - Document support tiers and escalation
+  - Link to knowledge base entries
+
+action.collectLifecycleMetrics:
+  - Aggregate metrics from workflows and monitoring
+  - Store trend data in meta/metrics/*.json
+
+action.runRetrospectives:
+  - Generate retro prompts and capture output
+  - Schedule improvement tasks automatically
+
+action.curateImprovementBacklog:
+  - Rank improvement items using AI heuristics
+  - Feed prioritized items to RequirementIntake
+
+action.trainAiOnProjectHistory:
+  - Sanitize and feed repo history to AI co-pilot
+  - Update prompt templates with new insights
+
+action.activateChatOpsCommands:
+  - Register commands listed in chatOpsCommands
+  - Publish help documentation via /help
+
+action.monitorValueStream:
+  - Visualize throughput, WIP, blocked work
+  - Alert on bottlenecks using metrics thresholds
+
+action.coordinateWorkstreams:
+  - Align requirement, design, test, code flows
+  - Trigger cross-functional syncs when needed
+
+action.broadcastLifecycleStatus:
+  - Generate weekly status digest
+  - Share via Slack/email/dashboard
+
+action.analyzePipelineFailures:
+  - Gather logs and failing artifacts
+  - Categorize root causes with AI assistance
+
+action.generateFixPlan:
+  - Draft remediation plan and assign owners
+  - Log plan in docs/status/fixes.md
+
+action.implementFixes:
+  - Apply fixes within feature branches
+  - Ensure tests covering regression are added
+
+action.updateRetrospectiveLog:
+  - Append failure & learnings to retro history
+  - Feed insights to ContinuousImprovement backlog
+
+###############################################################################
+# GUARD DEFINITIONS
+###############################################################################
+
+guard.bootstrapReady:
+  - Template context captured
+  - Repo metadata seeded
+  - AI assistants configured or manual fallback planned
+
+guard.knowledgePlatformReady:
+  - Knowledge engine + MCP available OR manual fallback chosen
+  - AI operating guide published
+
+guard.manualPlaybookAcknowledged:
+  - Manual instructions reviewed
+  - Stakeholder acknowledgment recorded
+
+guard.requirementDraftComplete:
+  - Vision doc exists
+  - Backlog populated with FR/NFR + acceptance criteria
+  - Stakeholders mapped
+
+guard.requirementsApproved:
+  - Approval records captured
+  - Priorities assigned
+  - Traceability matrix created
+
+guard.scaffoldReady:
+  - Repository structure materialized
+  - Tooling configs committed
+  - Contribution guides authored
+
+guard.workflowsPassing:
+  - Lint/test/release workflows validated in dry-run
+  - Governance policies encoded
+
+guard.designBaselineReady:
+  - Architecture blueprint and domain models published
+  - Design review scheduled with agenda
+
+guard.testPlanApproved:
+  - Test strategy document approved by QA lead
+  - Traceability between tests and requirements established
+
+guard.implementationReady:
+  - Feature board live
+  - Core implementation scaffolded
+  - Pairing rotations confirmed
+
+guard.qualityGatePassed:
+  - Lint/test/security suites green
+  - Quality report published
+
+guard.releaseChecklistComplete:
+  - Version bump documented
+  - Release notes generated
+  - Distribution artifacts built
+
+guard.operationsReady:
+  - Runbooks, monitoring, incident response in place
+  - Support playbooks published
+
+guard.improvementCycleComplete:
+  - Metrics collected and reviewed
+  - Retro actions logged
+  - AI retrained or flagged for retraining
+
+guard.commandCenterOperational:
+  - ChatOps commands active
+  - Value stream dashboard healthy
+  - Stakeholder broadcast sent
+
+guard.fixPlanExecuted:
+  - Fix plan tasks merged
+  - Regression tests in place
+  - Retro log updated
+
+###############################################################################
+# CHECKLISTS
+###############################################################################
+
+readinessChecklist:
+  - "AI operating guide reviewed"
+  - "Requirement backlog approved"
+  - "Repository scaffold validated"
+  - "Automation workflows passing"
+  - "Design baseline published"
+  - "Test strategy approved"
+  - "Implementation enablement complete"
+  - "Quality gates green"
+  - "Release checklist signed off"
+  - "Operations playbooks deployed"
+  - "Continuous improvement cadence scheduled"
+
+sustainabilityChecklist:
+  - "Metrics dashboard reviewed weekly"
+  - "ChatOps commands documented"
+  - "AI models refreshed on schedule"
+  - "Security posture audited monthly"
+  - "Stakeholder satisfaction surveyed quarterly"
+  - "Improvement backlog triaged each sprint"
+
+###############################################################################
+# END OF TEMPLATE
+###############################################################################

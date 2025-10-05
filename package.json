@@ -1,0 +1,47 @@
+{
+  "name": "unum",
+  "version": "0.1.0",
+  "description": "Modern Svelte bindings for Gun.js with Svelte 4 and 5 compatibility",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:prepublish": "node scripts/test-prepublish.js",
+    "lint": "eslint src/**/*.ts",
+    "prepublishOnly": "npm run test && npm run build",
+    "publish:npm": "npm run prepublishOnly && npm publish --access public"
+  },
+  "keywords": [
+    "svelte",
+    "svelte5",
+    "reactive",
+    "store",
+    "runes",
+    "database",
+    "decentralized"
+  ],
+  "author": "Oasis Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plures/unum"
+  },
+  "peerDependencies": {
+    "svelte": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.0.0",
+    "eslint": "^8.0.0",
+    "jsdom": "^24.0.0",
+    "typescript": "^5.8.2",
+    "vitest": "^1.0.0"
+  }
+}

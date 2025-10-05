@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>unum Deno Demo</title>
+  
+  <!-- Add import map for browser module resolution -->
+  <script type="importmap">
+    {
+      "imports": {
+        "svelte": "https://cdn.jsdelivr.net/npm/svelte@5.0.0-next.68/+esm",
+        "svelte/action": "https://cdn.jsdelivr.net/npm/svelte@5.0.0-next.68/action/+esm",
+        "svelte/store": "https://cdn.jsdelivr.net/npm/svelte@5.0.0-next.68/store/+esm",
+        "svelte/internal": "https://cdn.jsdelivr.net/npm/svelte@5.0.0-next.68/internal/+esm",
+        "svelte/motion": "https://cdn.jsdelivr.net/npm/svelte@5.0.0-next.68/motion/+esm",
+        "svelte/transition": "https://cdn.jsdelivr.net/npm/svelte@5.0.0-next.68/transition/+esm",
+        "gun": "https://cdn.jsdelivr.net/npm/gun@0.2020.1240/gun.js",
+        "unum": "/dist/index.js",
+        "$app/environment": "./assets/mock-app-env.js"
+      }
+    }
+  </script>
+  
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1, h2, h3 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    .heading-emphasis {
+      color: #4a5568;
+      font-weight: 500;
+    }
+    .examples {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    @media (min-width: 768px) {
+      .examples {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .example {
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .container {
+      border: 1px solid #f0f0f0;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    input, textarea, button {
+      padding: 8px;
+      margin-bottom: 12px;
+    }
+    button {
+      background-color: #4a5568;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2d3748;
+    }
+    .counter {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+    .counter .buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .todo-app {
+      padding: 1rem;
+    }
+    .input-group {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+    .todo-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .todo-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    .todo-item.done span {
+      text-decoration: line-through;
+      color: #999;
+    }
+    .delete {
+      background: none;
+      border: none;
+      color: #ff5555;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0 0.5rem;
+    }
+    .description {
+      margin-top: 1rem;
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+    }
+    .json {
+      background: #f8f8f8;
+      padding: 0.5rem;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 200px;
+      font-size: 12px;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: #666;
+      font-style: italic;
+      margin-top: 1rem;
+    }
+    .feature-list {
+      list-style: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .feature-list li {
+      margin-bottom: 0.5rem;
+    }
+    .code-block {
+      background: #f8f8f8;
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-family: monospace;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1><span class="heading-emphasis">unum</span> Deno Demo</h1>
+  <p>This demo shows how <strong>unum</strong> makes it easy to create reactive, persistent Gun.js-backed components in Svelte.</p>
+  
+  <div id="app">
+    <!-- App will be mounted here -->
+    Loading...
+  </div>
+
+  <script type="module" src="./assets/main.js"></script>
+</body>
+</html> 
