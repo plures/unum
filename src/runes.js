@@ -1,27 +1,27 @@
 /**
- * unum - Svelte 5 Runes API for Gun.js
+ * unum - Svelte 5 Runes API for PluresDB
  * 
- * This module provides a seamless binding between Gun.js and Svelte 5 components
- * using the new Runes reactivity system. Components can work with Gun data without
- * knowing about Gun specifics.
+ * This module provides a seamless binding between PluresDB and Svelte 5 components
+ * using the new Runes reactivity system. Components can work with PluresDB data without
+ * knowing about PluresDB specifics.
  */
 import { derived } from 'svelte/store';
-import { gun as gunStore } from './GunContext.js';
+import { gun as dbStore } from './GunContext.js';
 
 /**
- * Creates a reactive connection to a Gun.js path
- * This is the primary API for Svelte 5 components to use Gun data
+ * Creates a reactive connection to a PluresDB path
+ * This is the primary API for Svelte 5 components to use PluresDB data
  * 
  * @example
  * ```svelte
  * <script>
- *   import { gunData } from '$lib/svgun/runes';
+ *   import { pluresData } from 'unum';
  *   
- *   // Create a reactive connection to Gun data
- *   const todos = gunData('todos');
+ *   // Create a reactive connection to PluresDB data
+ *   const todos = pluresData('todos');
  *   
  *   // Access a specific todo by ID
- *   const todo = gunData('todos', 'specific-id');
+ *   const todo = pluresData('todos', 'specific-id');
  *   
  *   // Create a new todo
  *   function addTodo(text) {
@@ -47,12 +47,12 @@ import { gun as gunStore } from './GunContext.js';
  * </ul>
  * ```
  */
-export function gunData(path, id = null) {
-  let gunPath = path;
+export function pluresData(path, id = null) {
+  let dbPath = path;
   // Using a plain object, not $state since this isn't a .svelte file
   let state = {};
   let listeners = [];
-  let gun = null; // Reference to Gun instance
+  let db = null; // Reference to PluresDB instance
   let unsubscribe = null; // Store unsubscription function
   
   // Notify all listeners when state changes
@@ -62,7 +62,7 @@ export function gunData(path, id = null) {
     }
   }
   
-  // Create the subscription to Gun data
+  // Create the subscription to PluresDB data
   function initialize() {
     // Unsubscribe from any existing subscription
     if (unsubscribe) {
@@ -70,15 +70,15 @@ export function gunData(path, id = null) {
       unsubscribe = null;
     }
     
-    // Subscribe to Gun instance
-    const storeUnsubscribe = gunStore.subscribe(gunInstance => {
-      if (!gunInstance) return;
+    // Subscribe to PluresDB instance
+    const storeUnsubscribe = dbStore.subscribe(dbInstance => {
+      if (!dbInstance) return;
       
-      // Store Gun instance reference
-      gun = gunInstance;
+      // Store PluresDB instance reference
+      db = dbInstance;
       
-      // Create reference to the Gun path
-      let ref = gun.get(path);
+      // Create reference to the PluresDB path
+      let ref = db.get(path);
       
       // If an ID is provided, narrow to that specific item
       if (id) {
@@ -102,7 +102,7 @@ export function gunData(path, id = null) {
       } else {
         // Set up subscription to a collection
         const mapUnsubscribe = ref.map().on((data, key) => {
-          if (key === '_') return; // Skip internal Gun keys
+          if (key === '_') return; // Skip internal PluresDB keys
           
           if (data === null) {
             // Item was deleted - create a new object to trigger updates
@@ -144,7 +144,7 @@ export function gunData(path, id = null) {
   
   // Add a new item to a collection
   function add(data) {
-    if (!gun || id) return; // Can't add to a single item reference
+    if (!db || id) return; // Can't add to a single item reference
     
     const itemId = data.id || Date.now().toString();
     const newItem = { 
@@ -152,8 +152,8 @@ export function gunData(path, id = null) {
       text: data.text || ''  // Ensure text is never undefined
     };
     
-    // Add to Gun directly
-    gun.get(path).get(itemId).put(newItem);
+    // Add to PluresDB directly
+    db.get(path).get(itemId).put(newItem);
     
     // Also update local state for immediate UI updates
     state = {
@@ -166,7 +166,7 @@ export function gunData(path, id = null) {
   
   // Update an item (or the current item if this is a single item reference)
   function update(itemId, updater) {
-    if (!gun) return;
+    if (!db) return;
     
     if (id) {
       // This is a single item reference
@@ -174,7 +174,7 @@ export function gunData(path, id = null) {
         ? updater(state) 
         : updater;
       
-      gun.get(path).get(id).put(updatedData);
+      db.get(path).get(id).put(updatedData);
       
       // Update local state immediately
       state = { ...state, ...updatedData };
@@ -188,7 +188,7 @@ export function gunData(path, id = null) {
         ? updater(item)
         : updater;
       
-      gun.get(path).get(itemId).put(updatedData);
+      db.get(path).get(itemId).put(updatedData);
       
       // Update local state immediately
       state = {
@@ -202,16 +202,16 @@ export function gunData(path, id = null) {
   
   // Remove an item (or all items if this is a collection and no id is provided)
   function remove(itemId = null) {
-    if (!gun) return;
+    if (!db) return;
     
     if (id) {
       // This is a single item reference - null it out
-      gun.get(path).get(id).put(null);
+      db.get(path).get(id).put(null);
       state = {};
       notifyListeners();
     } else if (itemId) {
       // Remove a specific item from the collection
-      gun.get(path).get(itemId).put(null);
+      db.get(path).get(itemId).put(null);
       
       // Update local state immediately
       const newState = { ...state };
@@ -258,15 +258,15 @@ export function gunData(path, id = null) {
 }
 
 /**
- * Creates a derived state from Gun data - allows transforming/filtering Gun data
+ * Creates a derived state from PluresDB data - allows transforming/filtering PluresDB data
  * 
  * @example
  * ```svelte
  * <script>
- *   import { gunData, gunDerived } from '$lib/svgun/runes';
+ *   import { pluresData, pluresDerived } from 'unum';
  *   
- *   const todos = gunData('todos');
- *   const completedTodos = gunDerived(todos, items => items.filter(item => item.completed));
+ *   const todos = pluresData('todos');
+ *   const completedTodos = pluresDerived(todos, items => items.filter(item => item.completed));
  * </script>
  * 
  * <h2>Completed Todos</h2>
@@ -277,12 +277,12 @@ export function gunData(path, id = null) {
  * </ul>
  * ```
  */
-export function gunDerived(gunData, transformer) {
+export function pluresDerived(pluresData, transformer) {
   let $state = []; // Derived state
   
   // Create a computed value that updates when the source data changes
   function compute() {
-    const sourceData = gunData.list ? gunData.list() : gunData.value;
+    const sourceData = pluresData.list ? pluresData.list() : pluresData.value;
     $state = transformer(sourceData);
   }
   
@@ -291,11 +291,11 @@ export function gunDerived(gunData, transformer) {
   
   // Set up a watcher to recompute when source data changes
   // This would be cleaner with Svelte 5's createEffect, but for now we'll use a workaround
-  let previousSourceData = JSON.stringify(gunData.list ? gunData.list() : gunData.value);
+  let previousSourceData = JSON.stringify(pluresData.list ? pluresData.list() : pluresData.value);
   
   // Check periodically for changes (not ideal, but works until Svelte 5 effects are stable)
   const interval = setInterval(() => {
-    const currentSourceData = JSON.stringify(gunData.list ? gunData.list() : gunData.value);
+    const currentSourceData = JSON.stringify(pluresData.list ? pluresData.list() : pluresData.value);
     if (previousSourceData !== currentSourceData) {
       previousSourceData = currentSourceData;
       compute();
@@ -307,37 +307,37 @@ export function gunDerived(gunData, transformer) {
     get value() { return $state; },
     destroy() {
       clearInterval(interval);
-      if (gunData.destroy) gunData.destroy();
+      if (pluresData.destroy) pluresData.destroy();
     }
   };
 }
 
 /**
- * Creates a two-way binding between a form input and Gun data
+ * Creates a two-way binding between a form input and PluresDB data
  * 
  * @example
  * ```svelte
  * <script>
- *   import { gunBind } from '$lib/svgun/runes';
+ *   import { pluresBind } from 'unum';
  *   
- *   const userProfile = gunData('userProfile');
- *   const nameBinding = gunBind(userProfile, 'name');
+ *   const userProfile = pluresData('userProfile');
+ *   const nameBinding = pluresBind(userProfile, 'name');
  * </script>
  * 
  * <input type="text" bind:value={nameBinding.value} />
  * ```
  */
-export function gunBind(gunData, field) {
-  let $value = gunData.state && gunData.state[field] || '';
+export function pluresBind(pluresData, field) {
+  let $value = pluresData.state && pluresData.state[field] || '';
   
-  // Set up a watcher for changes to the Gun data
-  let previousData = JSON.stringify(gunData.state);
+  // Set up a watcher for changes to the PluresDB data
+  let previousData = JSON.stringify(pluresData.state);
   
   const interval = setInterval(() => {
-    const currentData = JSON.stringify(gunData.state);
+    const currentData = JSON.stringify(pluresData.state);
     if (previousData !== currentData) {
       previousData = currentData;
-      $value = gunData.state && gunData.state[field] || '';
+      $value = pluresData.state && pluresData.state[field] || '';
     }
   }, 100);
   
@@ -346,13 +346,18 @@ export function gunBind(gunData, field) {
     set value(newValue) {
       $value = newValue;
       
-      // Update the Gun data
-      if (gunData.update) {
-        gunData.update({ [field]: newValue });
+      // Update the PluresDB data
+      if (pluresData.update) {
+        pluresData.update({ [field]: newValue });
       }
     },
     destroy() {
       clearInterval(interval);
     }
   };
-} 
+}
+
+// Legacy exports for backward compatibility
+export const gunData = pluresData;
+export const gunDerived = pluresDerived;
+export const gunBind = pluresBind;

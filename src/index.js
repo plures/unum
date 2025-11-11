@@ -1,7 +1,7 @@
 /**
- * unum - Local Svelte Gun.js Bindings
+ * unum - Local Svelte PluresDB Bindings
  *
- * A reactive Svelte binding library for Gun.js.
+ * A reactive Svelte binding library for PluresDB.
  */
 
 // Export store implementation
@@ -10,8 +10,11 @@ export * from './store.js';
 // Export actions
 export * from './actions.js';
 
-// Export Gun helpers
-export * from './gun-helper.js';
+// Export PluresDB helpers
+export * from './plures-helper.js';
+
+// Also export from gun-helper for backward compatibility
+export * from './plures-helper.js';
 
 /**
  * Re-export unum and connect functions for easier imports
@@ -20,38 +23,40 @@ import { unum, connect } from './unum.js';
 import { gun } from './GunContext.js';
 
 export { unum, connect, gun };
+export { gun as db, gun as plures }; // Alternative export names
 
 /**
- * Creates a complete Gun-powered component with automatic synchronization
+ * Creates a complete PluresDB-powered component with automatic synchronization
  * 
  * This higher-level function creates a wrapped component that automatically
- * syncs with Gun.js, without requiring any knowledge of the component's props
+ * syncs with PluresDB, without requiring any knowledge of the component's props
  * structure. Just specify the component and path, and it handles the rest.
  * 
  * @param {Object} options - Configuration options
- * @param {Function} options.component - The component to bind with Gun.js data
- * @param {Object} options.gun - Gun.js instance
- * @param {string} options.path - Gun.js path for data storage
+ * @param {Function} options.component - The component to bind with PluresDB data
+ * @param {Object} options.db - PluresDB instance (can also use 'gun' for compatibility)
+ * @param {string} options.path - PluresDB path for data storage
  * @param {string} [options.id] - Optional ID for multiple instances of the same component
  * @param {Object} [options.defaultData] - Default data to use ONLY if no data exists yet
- * @param {Object} [options.props] - Additional props to pass to the component (not synced with Gun)
+ * @param {Object} [options.props] - Additional props to pass to the component (not synced with PluresDB)
  * @returns {Function} A self-contained component that handles the synchronization
  */
-export function gunComponent(options) {
-  const { component, gun, path, id, defaultData = {}, props: extraProps = {} } = options;
+export function pluresComponent(options) {
+  const { component, db, gun, path, id, defaultData = {}, props: extraProps = {} } = options;
+  const dbInstance = db || gun; // Support both 'db' and 'gun' for compatibility
   
   if (!component) {
-    console.error('Component is required for gunComponent');
+    console.error('Component is required for pluresComponent');
     return () => null;
   }
   
-  if (!gun) {
-    console.error('Gun instance is required for gunComponent');
+  if (!dbInstance) {
+    console.error('PluresDB instance is required for pluresComponent');
     return () => null;
   }
   
   if (!path) {
-    console.error('Path is required for gunComponent');
+    console.error('Path is required for pluresComponent');
     return () => null;
   }
   
@@ -59,24 +64,24 @@ export function gunComponent(options) {
   const fullPath = id ? `${path}_${id}` : path;
   
   // Return a dynamically created component constructor
-  return class GunComponentWrapper {
+  return class PluresComponentWrapper {
     constructor(options = {}) {
       this.options = options;
       this.Component = component;
       this.instance = null;
       this.isMounted = false;
-      this.gunNode = gun.get(fullPath);
+      this.dbNode = dbInstance.get(fullPath);
       this.proxyData = null;
       this.unsubscribe = null;
-      this.isUpdatingFromGun = false; // Flag to prevent circular updates
+      this.isUpdatingFromDb = false; // Flag to prevent circular updates
       this.lastSnapshot = JSON.stringify({}); // Used to track changes
       
       // Initialize data if empty
-      this.gunNode.once(data => {
+      this.dbNode.once(data => {
         if (!data || Object.keys(data).filter(k => k !== '_').length === 0) {
           // Only apply default data if empty
           if (defaultData && Object.keys(defaultData).length > 0) {
-            this.gunNode.put(defaultData);
+            this.dbNode.put(defaultData);
           }
         }
       });
@@ -85,7 +90,7 @@ export function gunComponent(options) {
       this.proxyData = this.createReactiveProxy();
     }
     
-    // Create a proxy that automatically syncs with Gun.js
+    // Create a proxy that automatically syncs with PluresDB
     createReactiveProxy() {
       // Initial state
       const state = { ...defaultData };
@@ -99,10 +104,10 @@ export function gunComponent(options) {
           // Set value in state
           target[prop] = value;
           
-          // Only update Gun if not updating from Gun
-          if (!this.isUpdatingFromGun && this.gunNode) {
-            // Update Gun
-            this.gunNode.get(prop).put(value);
+          // Only update PluresDB if not updating from PluresDB
+          if (!this.isUpdatingFromDb && this.dbNode) {
+            // Update PluresDB
+            this.dbNode.get(prop).put(value);
             
             // Handle arrays
             if (Array.isArray(value)) {
@@ -122,9 +127,9 @@ export function gunComponent(options) {
         deleteProperty: (target, prop) => {
           delete target[prop];
           
-          // Update Gun
-          if (!this.isUpdatingFromGun && this.gunNode) {
-            this.gunNode.get(prop).put(null);
+          // Update PluresDB
+          if (!this.isUpdatingFromDb && this.dbNode) {
+            this.dbNode.get(prop).put(null);
           }
           
           return true;
@@ -142,9 +147,9 @@ export function gunComponent(options) {
           // Call original
           const result = original.apply(this, args);
           
-          // Update Gun with entire array
-          if (this.gunNode) {
-            this.gunNode.get(propPath).put(array);
+          // Update PluresDB with entire array
+          if (this.dbNode) {
+            this.dbNode.get(propPath).put(array);
           }
           
           return result;
@@ -176,11 +181,11 @@ export function gunComponent(options) {
       // Mark as mounted
       this.isMounted = true;
       
-      // Subscribe to Gun updates
-      this.unsubscribe = this.gunNode.on((data) => {
+      // Subscribe to PluresDB updates
+      this.unsubscribe = this.dbNode.on((data) => {
         if (!data) return;
         
-        // Filter out Gun metadata
+        // Filter out PluresDB metadata
         const cleanData = {};
         for (const key in data) {
           if (key !== '_' && !key.startsWith('_')) {
@@ -188,8 +193,8 @@ export function gunComponent(options) {
           }
         }
         
-        // Update proxy without triggering Gun updates
-        this.isUpdatingFromGun = true;
+        // Update proxy without triggering PluresDB updates
+        this.isUpdatingFromDb = true;
         try {
           // Update all properties
           for (const key in cleanData) {
@@ -202,7 +207,7 @@ export function gunComponent(options) {
             this.instance.$set(cleanData);
           }
         } finally {
-          this.isUpdatingFromGun = false;
+          this.isUpdatingFromDb = false;
         }
       });
       
@@ -210,7 +215,7 @@ export function gunComponent(options) {
     }
     
     destroy() {
-      // Unsubscribe from Gun
+      // Unsubscribe from PluresDB
       if (this.unsubscribe) {
         this.unsubscribe();
         this.unsubscribe = null;
@@ -225,4 +230,7 @@ export function gunComponent(options) {
       this.isMounted = false;
     }
   };
-} 
+}
+
+// Legacy export for backward compatibility
+export const gunComponent = pluresComponent; 

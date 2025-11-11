@@ -1,19 +1,21 @@
 /**
- * GunContext - Centralized Gun.js instance management
+ * PluresContext - Centralized PluresDB instance management
  * 
- * This module provides a shared Gun.js instance for the entire application,
+ * This module provides a shared PluresDB instance for the entire application,
  * avoiding multiple initializations across components.
  */
 import { writable, derived } from 'svelte/store';
-import { browser } from '$app/environment';
 
-// Store to hold the Gun instance
-const gunStore = writable(null);
+// Check if we're in a browser environment
+const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
 
-// Derived stores for common Gun paths
-export const todosRef = derived(gunStore, $gun => $gun?.get('todos') || null);
-export const messagesRef = derived(gunStore, $gun => $gun?.get('messages') || null);
-export const userProfileRef = derived(gunStore, $gun => $gun?.get('userProfile') || null);
+// Store to hold the PluresDB instance
+const dbStore = writable(null);
+
+// Derived stores for common PluresDB paths
+export const todosRef = derived(dbStore, $db => $db?.get('todos') || null);
+export const messagesRef = derived(dbStore, $db => $db?.get('messages') || null);
+export const userProfileRef = derived(dbStore, $db => $db?.get('userProfile') || null);
 
 // Flag to prevent multiple initializations
 let initialized = false;
@@ -21,47 +23,50 @@ let initializationAttempts = 0;
 const MAX_ATTEMPTS = 10;
 
 /**
- * Load Gun.js from CDN dynamically if not already loaded
+ * Load PluresDB from CDN dynamically if not already loaded
  */
-function loadGunScript() {
+function loadPluresScript() {
   return new Promise((resolve, reject) => {
-    // If Gun is already available, resolve immediately
-    if (typeof window !== 'undefined' && window.Gun) {
-      return resolve(window.Gun);
+    // If PluresDB/Gun is already available, resolve immediately
+    if (typeof window !== 'undefined' && (window.GunDB || window.Gun)) {
+      return resolve(window.GunDB || window.Gun);
     }
 
     // Check if the script is already in the DOM
-    const existingScript = document.querySelector('script[src*="gun.js"]');
+    const existingScript = document.querySelector('script[src*="gun.js"]') || 
+                          document.querySelector('script[src*="pluresdb"]');
     if (existingScript) {
       // Script exists but hasn't loaded yet, wait for it
       existingScript.addEventListener('load', () => {
-        if (window.Gun) {
-          resolve(window.Gun);
+        const DB = window.GunDB || window.Gun;
+        if (DB) {
+          resolve(DB);
         } else {
-          reject(new Error('Gun.js script loaded but Gun is not defined'));
+          reject(new Error('PluresDB/Gun.js script loaded but not defined'));
         }
       });
       existingScript.addEventListener('error', () => {
-        reject(new Error('Failed to load Gun.js script'));
+        reject(new Error('Failed to load PluresDB/Gun.js script'));
       });
       return;
     }
 
-    // Create and add the script element
+    // Create and add the script element (fallback to Gun.js for compatibility)
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/gun/gun.js';
     script.async = true;
     
     script.addEventListener('load', () => {
-      if (window.Gun) {
-        resolve(window.Gun);
+      const DB = window.GunDB || window.Gun;
+      if (DB) {
+        resolve(DB);
       } else {
-        reject(new Error('Gun.js script loaded but Gun is not defined'));
+        reject(new Error('PluresDB/Gun.js script loaded but not defined'));
       }
     });
     
     script.addEventListener('error', () => {
-      reject(new Error('Failed to load Gun.js script'));
+      reject(new Error('Failed to load PluresDB/Gun.js script'));
     });
     
     document.head.appendChild(script);
@@ -69,31 +74,32 @@ function loadGunScript() {
 }
 
 /**
- * Initialize Gun instance if not already done
+ * Initialize PluresDB instance if not already done
  * Only runs in the browser
  */
-export function initializeGun() {
-  if (initialized || !browser) return;
+export function initializePlures() {
+  if (initialized || !isBrowser) return;
   
   const attemptInitialization = async () => {
     // Only attempt initialization if not already initialized
     if (initialized) return;
     
     if (initializationAttempts >= MAX_ATTEMPTS) {
-      console.error('Failed to initialize Gun after multiple attempts');
+      console.error('Failed to initialize PluresDB after multiple attempts');
       return;
     }
     
     initializationAttempts++;
     
     try {
-      // Ensure Gun.js is loaded
-      await loadGunScript();
+      // Ensure PluresDB/Gun.js is loaded
+      await loadPluresScript();
       
-      if (window.Gun) {
-        console.log('Initializing shared Gun instance');
-        // Create a single Gun instance for the app with reliable storage
-        const gun = new window.Gun({
+      const DB = window.GunDB || window.Gun;
+      if (DB) {
+        console.log('Initializing shared PluresDB instance');
+        // Create a single DB instance for the app with reliable storage
+        const db = new DB({
           localStorage: true,    // Use localStorage adapter
           file: 'unum-demo',    // Name for stored data
           radisk: true,          // Use RAD to ensure data persistence
@@ -103,19 +109,19 @@ export function initializeGun() {
         });
         
         // Monitor all changes to the database
-        gun.on('put', function(data) {
-          console.log('Gun PUT event:', data);
+        db.on('put', function(data) {
+          console.log('PluresDB PUT event:', data);
         });
         
         // Store in our Svelte store
-        gunStore.set(gun);
+        dbStore.set(db);
         initialized = true;
         
         // Initialize collections if they don't exist
         setTimeout(() => {
-          if (initialized && gun) {
+          if (initialized && db) {
             // Initialize todos collection
-            gun.get('todos').once((data) => {
+            db.get('todos').once((data) => {
               console.log('Checking todos collection:', data);
               
               // Add a test todo if empty
@@ -124,7 +130,7 @@ export function initializeGun() {
                 
                 // Create a test todo item with explicit text field
                 const testId = 'test-' + Date.now();
-                gun.get('todos').get(testId).put({
+                db.get('todos').get(testId).put({
                   text: 'Test Todo Item - ' + new Date().toLocaleTimeString(),
                   completed: false,
                   createdAt: Date.now()
@@ -135,7 +141,7 @@ export function initializeGun() {
                 // Verify all todo items have a text property
                 console.log('Todos collection exists, checking items');
                 
-                gun.get('todos').map().once((item, id) => {
+                db.get('todos').map().once((item, id) => {
                   if (id === '_') return;
                   
                   console.log(`Checking todo ${id}:`, item);
@@ -144,7 +150,7 @@ export function initializeGun() {
                   if (item && (!item.text || item.text === '')) {
                     console.log(`Fixing missing text for todo ${id}`);
                     
-                    gun.get('todos').get(id).put({
+                    db.get('todos').get(id).put({
                       ...item,
                       text: `Todo item ${id.substring(0, 6)}`,
                     });
@@ -155,12 +161,12 @@ export function initializeGun() {
           }
         }, 500);
       } else if (!initialized) {
-        console.warn('Gun.js not available even after loading script. Retrying...');
+        console.warn('PluresDB not available even after loading script. Retrying...');
         // Retry after a delay - only if not initialized yet
         setTimeout(attemptInitialization, 500);
       }
     } catch (error) {
-      console.error('Error initializing Gun:', error);
+      console.error('Error initializing PluresDB:', error);
       // Retry after a delay - only if not initialized yet
       if (!initialized) {
         setTimeout(attemptInitialization, 500);
@@ -172,13 +178,18 @@ export function initializeGun() {
   attemptInitialization();
   
   return () => {
-    console.log('Cleaning up Gun instance');
-    // Gun doesn't have a formal cleanup method, but we can clear our reference
-    gunStore.set(null);
+    console.log('Cleaning up PluresDB instance');
+    // PluresDB doesn't have a formal cleanup method, but we can clear our reference
+    dbStore.set(null);
     initialized = false;
     initializationAttempts = 0;
   };
 }
 
-// Export the gun store for components to subscribe to
-export const gun = gunStore; 
+// Export the db store for components to subscribe to
+export const plures = dbStore;
+export const db = dbStore;
+
+// Legacy export for backward compatibility
+export const gun = dbStore;
+export const initializeGun = initializePlures;

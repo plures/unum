@@ -1,7 +1,7 @@
 {
   "name": "unum",
   "version": "0.1.0",
-  "description": "Modern Svelte bindings for Gun.js with Svelte 4 and 5 compatibility",
+  "description": "Modern Svelte bindings for PluresDB with Svelte 4 and 5 compatibility",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +26,9 @@
     "store",
     "runes",
     "database",
-    "decentralized"
+    "decentralized",
+    "pluresdb",
+    "p2p"
   ],
   "author": "Oasis Team",
   "license": "MIT",
