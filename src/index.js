@@ -11,7 +11,10 @@ export * from './store.js';
 export * from './actions.js';
 
 // Export PluresDB helpers
-export * from './gun-helper.js';
+export * from './plures-helper.js';
+
+// Also export from gun-helper for backward compatibility
+export * from './plures-helper.js';
 
 /**
  * Re-export unum and connect functions for easier imports

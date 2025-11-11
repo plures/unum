@@ -11,11 +11,12 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
+    "allowJs": true,
+    "checkJs": false,
+    "emitDeclarationOnly": false,
     "allowSyntheticDefaultImports": true,
     "lib": ["DOM", "ES2020"]
   },
   "include": ["src/**/*.ts", "src/**/*.js"],
-  "exclude": ["node_modules", "dist", "examples", "test"]
-} 
+  "exclude": ["node_modules", "dist", "examples", "test", "tests"]
+}

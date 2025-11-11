@@ -1,36 +1,37 @@
 /**
- * unum - Gun.js Helper Utilities
+ * unum - PluresDB Helper Utilities
  *
- * This module provides helper functions for working with Gun.js in Svelte.
+ * This module provides helper functions for working with PluresDB in Svelte.
  */
 
 /**
- * Get a reference to the Gun constructor when loaded from CDN
+ * Get a reference to the PluresDB constructor when loaded from CDN
  */
-export function getGun(options) {
-  // First check if Gun was loaded via CDN
-  if (typeof window !== 'undefined' && window.Gun) {
+export function getPlures(options) {
+  // First check if PluresDB/Gun was loaded via CDN
+  if (typeof window !== 'undefined' && (window.GunDB || window.Gun)) {
     try {
-      return new window.Gun(options);
+      const DB = window.GunDB || window.Gun;
+      return new DB(options);
     } catch (error) {
-      console.error('Error initializing Gun from window.Gun:', error);
+      console.error('Error initializing PluresDB:', error);
       return null;
     }
   }
   
-  console.warn('Gun.js not available. Make sure to include it via CDN script tag.');
+  console.warn('PluresDB/Gun.js not available. Make sure to include it via CDN script tag.');
   return null;
 }
 
 /**
- * Checks if Gun is available
+ * Checks if PluresDB is available
  */
-export function isGunAvailable() {
-  return typeof window !== 'undefined' && window.Gun !== undefined;
+export function isPluresAvailable() {
+  return typeof window !== 'undefined' && (window.GunDB !== undefined || window.Gun !== undefined);
 }
 
 /**
- * Helper to safely access Gun data with nested properties
+ * Helper to safely access PluresDB data with nested properties
  */
 export function safeGet(obj, path, defaultValue = undefined) {
   if (!obj) return defaultValue;
@@ -54,16 +55,16 @@ export function safeGet(obj, path, defaultValue = undefined) {
 }
 
 /**
- * Helper to safely process Gun data in a map operation
+ * Helper to safely process PluresDB data in a map operation
  */
-export function safeMap(gunData, callback, filterFn = null) {
-  if (!gunData || typeof gunData !== 'object') {
+export function safeMap(dbData, callback, filterFn = null) {
+  if (!dbData || typeof dbData !== 'object') {
     return [];
   }
   
   try {
     // Convert to entries and filter out metadata
-    let entries = Object.entries(gunData).filter(([key]) => key !== '_');
+    let entries = Object.entries(dbData).filter(([key]) => key !== '_');
     
     // Apply additional filter if provided
     if (filterFn && typeof filterFn === 'function') {
@@ -80,24 +81,24 @@ export function safeMap(gunData, callback, filterFn = null) {
       }
     }).filter(item => item !== null);
   } catch (error) {
-    console.error('Error processing Gun data:', error);
+    console.error('Error processing PluresDB data:', error);
     return [];
   }
 }
 
 /**
- * Create a Gun chain with safety checks
+ * Create a PluresDB chain with safety checks
  */
-export function safeChain(gun, path) {
-  if (!gun) {
-    console.error('No Gun instance provided');
+export function safeChain(db, path) {
+  if (!db) {
+    console.error('No PluresDB instance provided');
     return null;
   }
   
   try {
-    if (!path) return gun;
+    if (!path) return db;
     
-    let chain = gun;
+    let chain = db;
     const parts = path.split('.');
     
     for (const part of parts) {
@@ -110,7 +111,11 @@ export function safeChain(gun, path) {
     
     return chain;
   } catch (error) {
-    console.error(`Error creating Gun chain for path ${path}:`, error);
+    console.error(`Error creating PluresDB chain for path ${path}:`, error);
     return null;
   }
-} 
+}
+
+// Legacy exports for backward compatibility
+export const getGun = getPlures;
+export const isGunAvailable = isPluresAvailable;
