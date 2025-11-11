@@ -5,7 +5,6 @@
  * using the new Runes reactivity system. Components can work with PluresDB data without
  * knowing about PluresDB specifics.
  */
-import { derived } from 'svelte/store';
 import { gun as dbStore } from './GunContext.js';
 
 /**
@@ -48,7 +47,6 @@ import { gun as dbStore } from './GunContext.js';
  * ```
  */
 export function pluresData(path, id = null) {
-  let dbPath = path;
   // Using a plain object, not $state since this isn't a .svelte file
   let state = {};
   let listeners = [];

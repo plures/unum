@@ -5,8 +5,7 @@
  * binding Svelte components to Gun.js data.
  */
 import { gun as gunStore } from './GunContext.js';
-import { writable, derived, get } from 'svelte/store';
-import { createEventDispatcher } from 'svelte';
+import { writable, get } from 'svelte/store';
 
 /**
  * Wraps any Svelte component with Gun.js integration
@@ -215,7 +214,7 @@ export function wrapWithGun(Component, path, options = {}) {
   };
   
   // Make it look like a Svelte component
-  WrappedComponent.$$render = function($$props, $$slots) {
+  WrappedComponent.$$render = function($$props) {
     const props = $$props || {};
     const instance = new WrappedComponent(props);
     return instance.$$render ? instance.$$render() : '';

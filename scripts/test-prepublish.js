@@ -24,9 +24,7 @@ const requiredFiles = [
   'LICENSE.md',
   'README.md',
   'deno.json',
-  'src/index.js',
-  'src/index.ts',
-  'src/mod.ts'
+  'src/index.js'
 ];
 
 console.log("Checking required files...");

@@ -70,9 +70,9 @@ export function createUniversalBinding(gunPath, options = {}) {
 export function bindToGun(gunPath, options = {}) {
   return function(Component) {
     // Return a function that creates a new component with the right props
-    const WrappedComponent = function(options = {}) {
+    const WrappedComponent = function(wrapperOptions = {}) {
       // Create Gun binding
-      const binding = createUniversalBinding(gunPath, options);
+      const binding = createUniversalBinding(gunPath, wrapperOptions);
       
       // Get the original component
       const instance = new Component({
@@ -110,7 +110,8 @@ export function bindToGun(gunPath, options = {}) {
  * @param {any} [options.defaultData={}] - Default data structure for the component
  * @returns {import('svelte').ComponentType<T>} A wrapped component that syncs with Gun.js
  */
-export function gunBind(Component, gunPath, options = {}) {
+// eslint-disable-next-line no-unused-vars
+export function gunBind(Component, gunPath) {
   // For TypeScript compatibility, use a simpler approach
   return Component;
 }
