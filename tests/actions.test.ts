@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { gun, gunList } from '../src/actions.ts';
+import { pluresList, gunList } from '../src/actions.js';
 
-// Mock Gun instance
-const mockGun = {
+// Mock PluresDB instance
+const mockDb = {
   get: vi.fn().mockReturnThis(),
   put: vi.fn().mockReturnThis(),
   on: vi.fn().mockImplementation((cb) => {
@@ -13,89 +13,57 @@ const mockGun = {
     cb({ name: 'John', age: 30 }, 'user');
   }),
   off: vi.fn().mockReturnThis(),
-  _: {}, // Required by Gun type
+  _: {}, // Required by PluresDB type
   map: vi.fn().mockReturnThis(),
 };
 
-describe('gun action', () => {
-  // Create mock element for testing
-  let mockElement: HTMLInputElement;
+describe('pluresList action', () => {
+  let mockContainer: HTMLElement;
   
   beforeEach(() => {
     vi.clearAllMocks();
-    mockElement = document.createElement('input');
-    mockElement.type = 'text';
+    
+    // Create container element
+    mockContainer = document.createElement('ul');
   });
 
-  it('should bind Gun data to an input element', () => {
-    // Create action with mock Gun node
-    const action = gun(mockGun);
+  it('should initialize with PluresDB data', () => {
+    // Mock map to simulate a collection of items
+    const callback = vi.fn();
     
-    // Initialize the action on the element
-    action(mockElement);
+    // Create action with mock PluresDB collection
+    const action = pluresList(mockContainer, { db: mockDb, callback });
     
-    // Gun.on should have been called
-    expect(mockGun.on).toHaveBeenCalled();
-    
-    // Element value should be updated with Gun data
-    expect(mockElement.value).toBe('John');
+    // PluresDB.map should have been called
+    expect(mockDb.map).toHaveBeenCalled();
   });
 
-  it('should update Gun data when input changes', () => {
-    // Create action with mock Gun node
-    const action = gun(mockGun);
+  it('should support legacy gun parameter', () => {
+    const callback = vi.fn();
     
-    // Initialize the action on the element
-    action(mockElement);
+    // Create action with 'gun' parameter for backward compatibility
+    const action = pluresList(mockContainer, { gun: mockDb, callback });
     
-    // Simulate user input
-    mockElement.value = 'Jane';
-    mockElement.dispatchEvent(new Event('input'));
-    
-    // Gun.put should have been called with the new value
-    expect(mockGun.put).toHaveBeenCalledWith('Jane');
+    // PluresDB.map should have been called
+    expect(mockDb.map).toHaveBeenCalled();
   });
 });
 
-describe('gunList action', () => {
+describe('gunList action (legacy)', () => {
   let mockContainer: HTMLElement;
-  let mockTemplate: HTMLElement;
   
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    // Create container and template elements
     mockContainer = document.createElement('ul');
-    mockTemplate = document.createElement('li');
-    mockTemplate.dataset.gunTemplate = 'true';
-    
-    const nameSpan = document.createElement('span');
-    nameSpan.setAttribute('name', 'name');
-    mockTemplate.appendChild(nameSpan);
-    
-    mockContainer.appendChild(mockTemplate);
   });
 
-  it('should render a list of Gun items', () => {
-    // Mock map to simulate a collection of items
-    mockGun.map.mockImplementation((cb) => {
-      if (cb) {
-        cb(mockGun, 'item1');
-        cb(mockGun, 'item2');
-      }
-      return mockGun;
-    });
+  it('should work as an alias for pluresList', () => {
+    const callback = vi.fn();
     
-    // Create action with mock Gun collection
-    const action = gunList(mockGun);
+    // Create action with mock using legacy gunList
+    const action = gunList(mockContainer, { gun: mockDb, callback });
     
-    // Initialize the action on the container
-    action(mockContainer);
-    
-    // Gun.map should have been called
-    expect(mockGun.map).toHaveBeenCalled();
-    
-    // Container should have the template plus two items
-    expect(mockContainer.children.length).toBe(3);
+    // Should work the same as pluresList
+    expect(mockDb.map).toHaveBeenCalled();
   });
-}); 
+});

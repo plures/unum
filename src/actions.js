@@ -1,28 +1,28 @@
 /**
- * unum - Svelte action bindings for Gun.js
+ * unum - Svelte action bindings for PluresDB
  *
- * This provides a gunList action for binding Gun data to the DOM.
+ * This provides a pluresList action for binding PluresDB data to the DOM.
  */
 
 /**
- * Svelte action for handling Gun.js data binding in lists
+ * Svelte action for handling PluresDB data binding in lists
  * 
  * @example
  * ```svelte
- * <div use:gunList={{ gun: gun.get('messages'), callback: updateMessages }}>
+ * <div use:pluresList={{ db: db.get('messages'), callback: updateMessages }}>
  *   <!-- List rendering based on messages array -->
  * </div>
  * ```
  */
-export function gunList(node, params) {
+export function pluresList(node, params) {
   let unsubscribe = null;
-  let gunRef = null;
+  let dbRef = null;
   let callback = null;
   
   if (!params) return;
   
-  if (params.gun) {
-    gunRef = params.gun;
+  if (params.db || params.gun) {
+    dbRef = params.db || params.gun; // Support both 'db' and 'gun' for compatibility
   }
   
   if (params.callback && typeof params.callback === 'function') {
@@ -31,12 +31,12 @@ export function gunList(node, params) {
   
   // Initialize subscription
   function init() {
-    if (gunRef && typeof gunRef.map === 'function') {
+    if (dbRef && typeof dbRef.map === 'function') {
       // Subscribe to changes
       try {
         const dataMap = {};
         
-        unsubscribe = gunRef.map().on((data, key) => {
+        unsubscribe = dbRef.map().on((data, key) => {
           if (key === '_') return;
           
           // Update data map
@@ -48,7 +48,7 @@ export function gunList(node, params) {
           }
         });
       } catch (error) {
-        console.error('Error in gunList subscription:', error);
+        console.error('Error in pluresList subscription:', error);
       }
     }
   }
@@ -64,13 +64,13 @@ export function gunList(node, params) {
         try {
           unsubscribe();
         } catch (error) {
-          console.error('Error cleaning up gunList subscription:', error);
+          console.error('Error cleaning up pluresList subscription:', error);
         }
       }
       
       // Update parameters
-      if (newParams.gun) {
-        gunRef = newParams.gun;
+      if (newParams.db || newParams.gun) {
+        dbRef = newParams.db || newParams.gun;
       }
       
       if (newParams.callback && typeof newParams.callback === 'function') {
@@ -86,9 +86,12 @@ export function gunList(node, params) {
         try {
           unsubscribe();
         } catch (error) {
-          console.error('Error cleaning up gunList subscription:', error);
+          console.error('Error cleaning up pluresList subscription:', error);
         }
       }
     }
   };
-} 
+}
+
+// Legacy export for backward compatibility
+export const gunList = pluresList;
