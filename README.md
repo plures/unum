@@ -1,6 +1,6 @@
 # unum
 
-A modern Svelte binding library for Gun.js with full Svelte 5 compatibility.
+A modern Svelte binding library for PluresDB with full Svelte 5 compatibility.
 
 ## Features
 
@@ -8,7 +8,7 @@ A modern Svelte binding library for Gun.js with full Svelte 5 compatibility.
 - **Type-Safe**: Full TypeScript support with proper types
 - **Action-Based**: Modern Svelte actions for DOM binding
 - **Store-Based**: Writable store implementation for reactive data
-- **Collection Support**: Easy handling of Gun collections
+- **Collection Support**: Easy handling of PluresDB collections
 
 ## Installation
 
@@ -21,7 +21,7 @@ npm install unum
 ### Deno
 
 ```ts
-import { GunStore } from "https://deno.land/x/unum/mod.ts";
+import { PluresStore } from "https://deno.land/x/unum/mod.ts";
 ```
 
 ## Usage
@@ -30,18 +30,18 @@ import { GunStore } from "https://deno.land/x/unum/mod.ts";
 
 ```svelte
 <script>
-  import { GunStore } from 'unum';
-  import Gun from 'gun';
+  import { PluresStore } from 'unum';
+  import { GunDB } from 'pluresdb';
 
-  const gun = new Gun();
+  const db = new GunDB();
   
-  // Create a reactive store from Gun data
-  const nameStore = new GunStore(gun.get('profile').get('name'));
+  // Create a reactive store from PluresDB data
+  const nameStore = new PluresStore(db.get('profile').get('name'));
   
   // Subscribe to changes
   $: name = $nameStore;
   
-  // Update Gun data
+  // Update PluresDB data
   function updateName() {
     nameStore.set('New Name');
   }
@@ -55,13 +55,13 @@ import { GunStore } from "https://deno.land/x/unum/mod.ts";
 
 ```svelte
 <script>
-  import { useGun } from 'unum';
-  import Gun from 'gun';
+  import { usePlures } from 'unum';
+  import { GunDB } from 'pluresdb';
 
-  const gun = new Gun();
+  const db = new GunDB();
   
-  // Create a reactive state variable from Gun data
-  const { value: name } = useGun(gun.get('profile').get('name'));
+  // Create a reactive state variable from PluresDB data
+  const { value: name } = usePlures(db.get('profile').get('name'));
 </script>
 
 <input type="text" bind:value={name} />
@@ -71,19 +71,19 @@ import { GunStore } from "https://deno.land/x/unum/mod.ts";
 
 ```svelte
 <script>
-  import { gun, gunList } from 'unum';
-  import Gun from 'gun';
+  import { plures, pluresList } from 'unum';
+  import { GunDB } from 'pluresdb';
 
-  const gun = new Gun();
-  const users = gun.get('users');
+  const db = new GunDB();
+  const users = db.get('users');
 </script>
 
 <!-- Simple binding -->
-<input type="text" use:gun={gun.get('profile').get('name')} />
+<input type="text" use:plures={db.get('profile').get('name')} />
 
 <!-- List binding with template -->
-<ul use:gunList={users}>
-  <li data-gun-template="true">
+<ul use:pluresList={users}>
+  <li data-plures-template="true">
     <span name="name">User name</span>
     <input type="text" name="email" placeholder="Email" />
   </li>
@@ -94,17 +94,17 @@ import { GunStore } from "https://deno.land/x/unum/mod.ts";
 
 ### Stores
 
-- `GunStore<T>(gunChain, options?)`: Create a Svelte store from a Gun chain
-- `createGunStore<T>(gunChain, options?)`: Type-safe factory function
+- `PluresStore<T>(dbChain, options?)`: Create a Svelte store from a PluresDB chain
+- `createPluresStore<T>(dbChain, options?)`: Type-safe factory function
 
 ### Runes (Svelte 5)
 
-- `useGun<T>(gunChain, options?)`: Create a reactive state from a Gun chain
+- `usePlures<T>(dbChain, options?)`: Create a reactive state from a PluresDB chain
 
 ### Actions
 
-- `gun`: Action for binding Gun data to HTML elements
-- `gunList`: Action for handling collections of Gun data items
+- `plures`: Action for binding PluresDB data to HTML elements
+- `pluresList`: Action for handling collections of PluresDB data items
 
 ## License
 

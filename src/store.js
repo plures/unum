@@ -1,31 +1,31 @@
 /**
  * unum - Store implementation for Svelte support
  *
- * This provides a writable store implementation for Gun data.
+ * This provides a writable store implementation for PluresDB data.
  */
 import { writable } from 'svelte/store';
 
 /**
- * A Svelte-compatible store for Gun data
- * This provides a reactive interface between Gun.js and Svelte
+ * A Svelte-compatible store for PluresDB data
+ * This provides a reactive interface between PluresDB and Svelte
  */
-export class GunStore {
-  constructor(gun, options = {}) {
-    this.gun = gun;
+export class PluresStore {
+  constructor(db, options = {}) {
+    this.db = db;
     this.store = writable(options.initialValue);
-    this.setupGunSubscription();
+    this.setupDbSubscription();
   }
 
-  setupGunSubscription() {
-    if (!this.gun || typeof this.gun.on !== 'function') {
-      console.error('Invalid Gun instance provided to GunStore');
+  setupDbSubscription() {
+    if (!this.db || typeof this.db.on !== 'function') {
+      console.error('Invalid PluresDB instance provided to PluresStore');
       return;
     }
 
     try {
       // First, check if we can get a snapshot of the current data
-      this.gun.once((data) => {
-        console.log('Gun.once initial data snapshot:', data);
+      this.db.once((data) => {
+        console.log('PluresDB.once initial data snapshot:', data);
         if (data) {
           // Ensure the data has text properties where needed
           this.ensureTextProperties(data);
@@ -39,9 +39,9 @@ export class GunStore {
       });
 
       // Then subscribe to ongoing updates
-      this.unsubscribe = this.gun.on((data, key) => {
+      this.unsubscribe = this.db.on((data, key) => {
         try {
-          console.log('Gun.on received data:', data, 'with key:', key);
+          console.log('PluresDB.on received data:', data, 'with key:', key);
           
           if (data === null) {
             console.log('Received null data, setting store to empty object');
@@ -54,11 +54,11 @@ export class GunStore {
             this.store.set(data);
           }
         } catch (error) {
-          console.error('Error updating store with Gun data:', error);
+          console.error('Error updating store with PluresDB data:', error);
         }
       });
     } catch (error) {
-      console.error('Error setting up Gun subscription:', error);
+      console.error('Error setting up PluresDB subscription:', error);
     }
   }
 
@@ -68,7 +68,7 @@ export class GunStore {
     
     // Process all non-underscore properties
     Object.keys(data).forEach(key => {
-      if (key === '_') return; // Skip Gun metadata
+      if (key === '_') return; // Skip PluresDB metadata
       
       const item = data[key];
       if (item && typeof item === 'object') {
@@ -91,44 +91,44 @@ export class GunStore {
   }
 
   set(value) {
-    if (!this.gun || typeof this.gun.put !== 'function') {
-      console.error('Cannot set data on invalid Gun instance');
+    if (!this.db || typeof this.db.put !== 'function') {
+      console.error('Cannot set data on invalid PluresDB instance');
       return;
     }
 
     try {
-      console.log('GunStore.set called with value:', value);
+      console.log('PluresStore.set called with value:', value);
       
-      // Update Gun - this will trigger the .on() callback above
-      this.gun.put(value);
+      // Update PluresDB - this will trigger the .on() callback above
+      this.db.put(value);
       
       // Also update the store directly for immediate UI feedback
       this.store.set(value);
     } catch (error) {
-      console.error('Error setting Gun data:', error);
+      console.error('Error setting PluresDB data:', error);
     }
   }
 
   update(updater) {
-    if (!this.gun || typeof this.gun.put !== 'function') {
-      console.error('Cannot update data on invalid Gun instance');
+    if (!this.db || typeof this.db.put !== 'function') {
+      console.error('Cannot update data on invalid PluresDB instance');
       return;
     }
 
     try {
       this.store.update((currentValue) => {
         if (currentValue === undefined) {
-          console.warn('Updating undefined Gun value');
+          console.warn('Updating undefined PluresDB value');
           const newValue = updater({});
-          this.gun.put(newValue);
+          this.db.put(newValue);
           return newValue;
         }
         const newValue = updater(currentValue);
-        this.gun.put(newValue);
+        this.db.put(newValue);
         return newValue;
       });
     } catch (error) {
-      console.error('Error updating Gun data:', error);
+      console.error('Error updating PluresDB data:', error);
     }
   }
 
@@ -137,23 +137,27 @@ export class GunStore {
       try {
         this.unsubscribe();
       } catch (error) {
-        console.error('Error unsubscribing from Gun:', error);
+        console.error('Error unsubscribing from PluresDB:', error);
       }
     }
   }
 }
 
 /**
- * Creates a GunStore with proper error handling
+ * Creates a PluresStore with proper error handling
  */
-export function createGunStore(gun, options = {}) {
-  if (!gun) {
-    console.error('No Gun instance provided to createGunStore');
+export function createPluresStore(db, options = {}) {
+  if (!db) {
+    console.error('No PluresDB instance provided to createPluresStore');
     // Return a dummy store that won't crash
-    return new GunStore({
+    return new PluresStore({
       on: () => () => {},
       put: () => {},
     }, options);
   }
-  return new GunStore(gun, options);
-} 
+  return new PluresStore(db, options);
+}
+
+// Legacy exports for backward compatibility
+export const GunStore = PluresStore;
+export const createGunStore = createPluresStore;
