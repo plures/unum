@@ -4,7 +4,7 @@
  * This module provides a clean way to bind Gun.js data to Svelte components
  * without the components knowing anything about Gun.js.
  */
-import { getContext, setContext } from 'svelte';
+import { getContext } from 'svelte';
 import { writable, derived } from 'svelte/store';
 import { gun as gunStore } from './GunContext.js';
 
@@ -69,7 +69,7 @@ export function unum(Component, options) {
       });
       
       // Subscribe to Gun data changes
-      unsubscribe = node.on((data, key) => {
+      unsubscribe = node.on((data) => {
         if (!data) return;
         
         // Filter out Gun metadata
