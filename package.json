@@ -15,7 +15,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:prepublish": "node scripts/test-prepublish.js",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint src/**/*.js",
     "prepublishOnly": "npm run test && npm run build",
     "publish:npm": "npm run prepublishOnly && npm publish --access public"
   },
