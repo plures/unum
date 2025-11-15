@@ -27,34 +27,58 @@ Before publishing, ensure:
 
 ### Automated Publishing (Recommended)
 
-The package is automatically published to npm when you create a new GitHub Release:
+The package uses an automated CI/CD pipeline for publishing. There are two ways to trigger a release:
 
-1. **Create a Git Tag** (if using npm version, this is done automatically)
+#### Method 1: Automatic Release on Version Change (Recommended)
+
+1. **Update the version in package.json**
    ```bash
-   git tag v0.1.1
-   git push origin v0.1.1
+   npm version patch  # For bug fixes (0.1.0 → 0.1.1)
+   npm version minor  # For new features (0.1.0 → 0.2.0)
+   npm version major  # For breaking changes (0.1.0 → 1.0.0)
    ```
 
-2. **Create a GitHub Release**
-   - Go to: https://github.com/plures/unum/releases/new
-   - Choose your tag (e.g., `v0.1.1`)
-   - Set Release title (e.g., `v0.1.1`)
-   - Add release notes describing changes
-   - Click "Publish release"
+2. **Push to main branch**
+   ```bash
+   git push origin main --follow-tags
+   ```
 
 3. **Automated Workflow Runs**
-   The GitHub Actions workflow will automatically:
-   - ✅ Checkout the code
-   - ✅ Setup Node.js environment
-   - ✅ Install dependencies
-   - ✅ Run tests
-   - ✅ Build the package
+   The GitHub Actions Release workflow will automatically:
+   - ✅ Detect the version change
+   - ✅ Run tests and build
+   - ✅ Generate changelog from git commits
+   - ✅ Create a GitHub Release with the changelog
    - ✅ Publish to npm with provenance
+   - ✅ Publish to GitHub Packages as @plures/unum
 
 4. **Monitor the Workflow**
    - Go to: https://github.com/plures/unum/actions
-   - Check the "Publish to npm" workflow run
+   - Check the "Release" workflow run
    - Verify successful publication
+
+#### Method 2: Manual Workflow Dispatch
+
+You can also trigger a release manually from GitHub Actions:
+
+1. **Navigate to Actions**
+   - Go to: https://github.com/plures/unum/actions
+   - Click on "Release" workflow
+
+2. **Run Workflow**
+   - Click "Run workflow"
+   - Select the version bump type (patch, minor, or major)
+   - Click "Run workflow"
+
+3. **Automated Process**
+   The workflow will:
+   - ✅ Bump the version in package.json
+   - ✅ Commit and push the version change
+   - ✅ Run tests and build
+   - ✅ Generate changelog
+   - ✅ Create a GitHub Release
+   - ✅ Publish to npm
+   - ✅ Publish to GitHub Packages
 
 ### Manual Publishing (Local)
 
@@ -79,7 +103,7 @@ npm login
 
 ## CI/CD Pipeline
 
-The repository includes two workflows:
+The repository includes three workflows:
 
 ### 1. CI Workflow (`.github/workflows/ci.yml`)
 - **Triggers**: On push to `main` or pull requests
@@ -90,13 +114,27 @@ The repository includes two workflows:
   - Builds the package
   - Validates prepublish script
 
-### 2. Publish Workflow (`.github/workflows/publish-npm.yml`)
-- **Triggers**: On GitHub release creation
-- **Purpose**: Automatically publishes to npm
+### 2. Release Workflow (`.github/workflows/release.yml`)
+- **Triggers**: 
+  - Automatically when package.json version changes on main branch
+  - Manually via workflow dispatch
+- **Purpose**: Automates the entire release process
+- **Actions**:
+  - Detects version changes
+  - Runs tests and builds
+  - Generates changelog from git commits
+  - Creates GitHub Release with auto-generated notes
+  - Publishes to npm with provenance
+  - Publishes to GitHub Packages as @plures/unum
+
+### 3. Publish Workflow (`.github/workflows/publish-npm.yml`)
+- **Triggers**: When a GitHub release is manually published
+- **Purpose**: Fallback publishing mechanism
 - **Actions**:
   - Runs tests
   - Builds the package
   - Publishes to npm with provenance
+  - Publishes to GitHub Packages
 
 ## NPM Provenance
 
@@ -142,10 +180,17 @@ Follow [Semantic Versioning](https://semver.org/):
 
 ## Package Information
 
-- **Package Name**: `unum`
+- **Package Name**: `unum` (npm) / `@plures/unum` (GitHub Packages)
 - **NPM Registry**: https://www.npmjs.com/package/unum
-- **Scope**: Public (no scope)
+- **GitHub Packages**: https://github.com/plures/unum/packages
+- **Scope**: Public (no scope on npm, @plures scope on GitHub)
 - **Access Level**: Public
+
+### PluresDB Package
+
+- **Package Name**: `@plures/pluresdb`
+- **NPM Registry**: https://www.npmjs.com/package/@plures/pluresdb
+- **GitHub Packages**: Available as GitHub package
 
 ## Support
 
