@@ -1,21 +1,21 @@
 /**
- * unum - Gun-powered Component Wrapper
+ * unum - PluresDB-powered Component Wrapper
  * 
  * This module provides a higher-level component wrapper that simplifies
- * binding Svelte components to Gun.js data.
+ * binding Svelte components to PluresDB (@plures/pluresdb) data.
  */
 import { gun as gunStore } from './GunContext.js';
 import { writable, get } from 'svelte/store';
 
 /**
- * Wraps any Svelte component with Gun.js integration
+ * Wraps any Svelte component with PluresDB integration
  * 
  * @param {Component} Component - The Svelte component to wrap
  * @param {Object} options - Configuration options
- * @param {string} options.path - The Gun.js path to store data
+ * @param {string} options.path - The PluresDB path to store data
  * @param {string} [options.id] - Optional ID for this specific instance
- * @param {Object} [options.defaultData] - Default data to use if Gun has no data
- * @returns {Component} A new component that wraps the original with Gun.js integration
+ * @param {Object} [options.defaultData] - Default data to use if PluresDB has no data
+ * @returns {Component} A new component that wraps the original with PluresDB integration
  */
 export function gunComponent(Component, { path, id, defaultData = {} }) {
   // Generate unique ID if not provided
@@ -174,28 +174,28 @@ export function gunComponent(Component, { path, id, defaultData = {} }) {
 }
 
 /**
- * Creates a Svelte component that wraps another component with Gun.js integration
- * This provides a cleaner API for creating Gun-powered components
+ * Creates a Svelte component that wraps another component with PluresDB integration
+ * This provides a cleaner API for creating PluresDB-powered components
  * 
  * @param {Component} Component - The component to wrap
- * @param {string} path - Gun.js path for data storage
+ * @param {string} path - PluresDB path for data storage
  * @param {Object} [options] - Additional options
  * @param {string} [options.id] - Optional ID for this instance
  * @param {Object} [options.defaultData] - Default data to use
  * @returns {Component} A new Svelte component
  * 
  * @example
- * // Create a Gun-powered TodoApp
- * import { wrapWithGun } from '$lib/svgun/gunComponent';
+ * // Create a PluresDB-powered TodoApp
+ * import { wrapWithGun } from '$lib/unum/gunComponent';
  * import TodoApp from './TodoApp.svelte';
  * 
- * // Simple API - component knows nothing about Gun
- * export const GunTodoApp = wrapWithGun(TodoApp, 'todos', {
+ * // Simple API - component knows nothing about PluresDB
+ * export const PluresTodοApp = wrapWithGun(TodoApp, 'todos', {
  *   defaultData: { items: [] }
  * });
  * 
  * // In a parent component, use it like a normal component
- * <GunTodoApp title="My Todo List" />
+ * <PluresTodοApp title="My Todo List" />
  */
 export function wrapWithGun(Component, path, options = {}) {
   // Create a properly formatted component wrapper

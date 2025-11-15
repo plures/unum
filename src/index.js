@@ -1,7 +1,7 @@
 /**
  * unum - Local Svelte PluresDB Bindings
  *
- * A reactive Svelte binding library for PluresDB.
+ * A reactive Svelte binding library for PluresDB (@plures/pluresdb).
  */
 
 // Export store implementation
@@ -29,12 +29,13 @@ export { gun as db, gun as plures }; // Alternative export names
  * Creates a complete PluresDB-powered component with automatic synchronization
  * 
  * This higher-level function creates a wrapped component that automatically
- * syncs with PluresDB, without requiring any knowledge of the component's props
- * structure. Just specify the component and path, and it handles the rest.
+ * syncs with PluresDB (@plures/pluresdb), without requiring any knowledge of 
+ * the component's props structure. Just specify the component and path, and 
+ * it handles the rest.
  * 
  * @param {Object} options - Configuration options
  * @param {Function} options.component - The component to bind with PluresDB data
- * @param {Object} options.db - PluresDB instance (can also use 'gun' for compatibility)
+ * @param {Object} options.db - PluresDB instance from @plures/pluresdb (can also use 'gun' for compatibility)
  * @param {string} options.path - PluresDB path for data storage
  * @param {string} [options.id] - Optional ID for multiple instances of the same component
  * @param {Object} [options.defaultData] - Default data to use ONLY if no data exists yet
@@ -51,7 +52,7 @@ export function pluresComponent(options) {
   }
   
   if (!dbInstance) {
-    console.error('PluresDB instance is required for pluresComponent');
+    console.error('PluresDB instance from @plures/pluresdb is required for pluresComponent');
     return () => null;
   }
   

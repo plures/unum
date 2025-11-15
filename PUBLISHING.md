@@ -2,6 +2,10 @@
 
 This document describes how to publish the `unum` package to npm using the automated GitHub Actions workflow.
 
+## About PluresDB
+
+PluresDB is published to `@plures/pluresdb` on npm and is also available as a GitHub package. It provides a modern, graph-based database with real-time synchronization capabilities. Unum provides Svelte bindings for PluresDB.
+
 ## Prerequisites
 
 Before publishing, ensure:
