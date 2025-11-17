@@ -1,9 +1,10 @@
 name: Publish to npm
 
-# Trigger the workflow when a new release is created
+# Trigger the workflow when a new release is published
+# This workflow is triggered by the Release workflow
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   publish:
@@ -12,6 +13,7 @@ jobs:
     permissions:
       contents: read
       id-token: write # Required for npm provenance
+      packages: write # Required for GitHub Packages
     
     steps:
       - name: Checkout code
@@ -36,3 +38,21 @@ jobs:
         run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Setup Node.js for GitHub Packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@plures'
+      
+      - name: Update package.json for GitHub Packages
+        run: |
+          # Temporarily update package name for GitHub Packages
+          node -e "const pkg = require('./package.json'); pkg.name = '@plures/unum'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));"
+      
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true

@@ -3,6 +3,8 @@
  * 
  * This module provides a shared PluresDB instance for the entire application,
  * avoiding multiple initializations across components.
+ * 
+ * PluresDB is available at @plures/pluresdb on npm.
  */
 import { writable, derived } from 'svelte/store';
 
@@ -24,49 +26,52 @@ const MAX_ATTEMPTS = 10;
 
 /**
  * Load PluresDB from CDN dynamically if not already loaded
+ * Note: For production use, install @plures/pluresdb from npm instead of using CDN
  */
 function loadPluresScript() {
   return new Promise((resolve, reject) => {
-    // If PluresDB/Gun is already available, resolve immediately
-    if (typeof window !== 'undefined' && (window.GunDB || window.Gun)) {
-      return resolve(window.GunDB || window.Gun);
+    // If PluresDB is already available, resolve immediately
+    // PluresDB can be loaded from @plures/pluresdb package
+    if (typeof window !== 'undefined' && (window.PluresDB || window.GunDB || window.Gun)) {
+      return resolve(window.PluresDB || window.GunDB || window.Gun);
     }
 
     // Check if the script is already in the DOM
-    const existingScript = document.querySelector('script[src*="gun.js"]') || 
-                          document.querySelector('script[src*="pluresdb"]');
+    const existingScript = document.querySelector('script[src*="pluresdb"]') ||
+                          document.querySelector('script[src*="gun.js"]');
     if (existingScript) {
       // Script exists but hasn't loaded yet, wait for it
       existingScript.addEventListener('load', () => {
-        const DB = window.GunDB || window.Gun;
+        const DB = window.PluresDB || window.GunDB || window.Gun;
         if (DB) {
           resolve(DB);
         } else {
-          reject(new Error('PluresDB/Gun.js script loaded but not defined'));
+          reject(new Error('PluresDB script loaded but not defined'));
         }
       });
       existingScript.addEventListener('error', () => {
-        reject(new Error('Failed to load PluresDB/Gun.js script'));
+        reject(new Error('Failed to load PluresDB script'));
       });
       return;
     }
 
-    // Create and add the script element (fallback to Gun.js for compatibility)
+    // Create and add the script element (fallback to Gun.js CDN for compatibility)
+    // For production, use: import PluresDB from '@plures/pluresdb'
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/gun/gun.js';
     script.async = true;
     
     script.addEventListener('load', () => {
-      const DB = window.GunDB || window.Gun;
+      const DB = window.PluresDB || window.GunDB || window.Gun;
       if (DB) {
         resolve(DB);
       } else {
-        reject(new Error('PluresDB/Gun.js script loaded but not defined'));
+        reject(new Error('PluresDB script loaded but not defined'));
       }
     });
     
     script.addEventListener('error', () => {
-      reject(new Error('Failed to load PluresDB/Gun.js script'));
+      reject(new Error('Failed to load PluresDB script'));
     });
     
     document.head.appendChild(script);
@@ -92,10 +97,10 @@ export function initializePlures() {
     initializationAttempts++;
     
     try {
-      // Ensure PluresDB/Gun.js is loaded
+      // Ensure PluresDB is loaded (from @plures/pluresdb package or CDN)
       await loadPluresScript();
       
-      const DB = window.GunDB || window.Gun;
+      const DB = window.PluresDB || window.GunDB || window.Gun;
       if (DB) {
         console.log('Initializing shared PluresDB instance');
         // Create a single DB instance for the app with reliable storage

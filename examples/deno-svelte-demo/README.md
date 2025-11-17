@@ -34,12 +34,12 @@ deno task start
 
 This example needs several permissions to run properly:
 
-- `--allow-net`: To serve HTTP and Gun.js traffic
+- `--allow-net`: To serve HTTP and PluresDB traffic
 - `--allow-read`: To read static files
-- `--allow-write`: For Gun.js data persistence
-- `--allow-env`: Required by some Gun.js dependencies
-- `--unstable-ffi`: Required by some Gun.js native dependencies
-- `--allow-sys`: Required for system information by Gun.js
+- `--allow-write`: For PluresDB data persistence
+- `--allow-env`: Required by some PluresDB dependencies
+- `--unstable-ffi`: Required by some PluresDB native dependencies
+- `--allow-sys`: Required for system information by PluresDB
 
 ## How It Compares to the SvelteKit Demo
 
@@ -51,6 +51,6 @@ This demo implements the same functionality as the SvelteKit demo, but with thes
 4. **Runtime**: Runs on Deno instead of Node.js
 
 The core features remain the same:
-- Gun.js for data persistence and synchronization
+- PluresDB for data persistence and synchronization
 - Svelte 5 runes for reactivity
-- Black-box component serialization patterns 
+- Black-box component serialization patterns

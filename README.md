@@ -1,6 +1,8 @@
 # unum
 
-A modern Svelte binding library for PluresDB with full Svelte 5 compatibility.
+A modern Svelte binding library for [PluresDB](https://github.com/plures/pluresdb) with full Svelte 5 compatibility.
+
+PluresDB is published to `@plures/pluresdb` on npm and is also available as a GitHub package. It provides a modern, graph-based database with real-time synchronization capabilities.
 
 ## Features
 
@@ -31,9 +33,9 @@ import { PluresStore } from "https://deno.land/x/unum/mod.ts";
 ```svelte
 <script>
   import { PluresStore } from 'unum';
-  import { GunDB } from 'pluresdb';
+  import PluresDB from '@plures/pluresdb';
 
-  const db = new GunDB();
+  const db = new PluresDB();
   
   // Create a reactive store from PluresDB data
   const nameStore = new PluresStore(db.get('profile').get('name'));
@@ -56,9 +58,9 @@ import { PluresStore } from "https://deno.land/x/unum/mod.ts";
 ```svelte
 <script>
   import { usePlures } from 'unum';
-  import { GunDB } from 'pluresdb';
+  import PluresDB from '@plures/pluresdb';
 
-  const db = new GunDB();
+  const db = new PluresDB();
   
   // Create a reactive state variable from PluresDB data
   const { value: name } = usePlures(db.get('profile').get('name'));
@@ -72,9 +74,9 @@ import { PluresStore } from "https://deno.land/x/unum/mod.ts";
 ```svelte
 <script>
   import { plures, pluresList } from 'unum';
-  import { GunDB } from 'pluresdb';
+  import PluresDB from '@plures/pluresdb';
 
-  const db = new GunDB();
+  const db = new PluresDB();
   const users = db.get('users');
 </script>
 
