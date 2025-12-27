@@ -4,7 +4,7 @@ This document describes how to publish the `unum` package to npm using the autom
 
 ## About PluresDB
 
-PluresDB is published to `@plures/pluresdb` on npm and is also available as a GitHub package. It provides a modern, graph-based database with real-time synchronization capabilities. Unum provides Svelte bindings for PluresDB.
+PluresDB is published to npm as `pluresdb` and is also available as a Deno package. It provides a modern, graph-based database with real-time synchronization capabilities, inspired by and compatible with Gun.js. Unum provides Svelte bindings for PluresDB.
 
 ## Prerequisites
 
@@ -188,9 +188,9 @@ Follow [Semantic Versioning](https://semver.org/):
 
 ### PluresDB Package
 
-- **Package Name**: `@plures/pluresdb`
-- **NPM Registry**: https://www.npmjs.com/package/@plures/pluresdb
-- **GitHub Packages**: Available as GitHub package
+- **Package Name**: `pluresdb`
+- **NPM Registry**: https://www.npmjs.com/package/pluresdb
+- **Deno**: Available via JSR at `@plures/pluresdb`
 
 ## Support
 

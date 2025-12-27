@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- Updated branding and documentation to focus on PluresDB (@plures/pluresdb)
+- Updated branding and documentation to focus on PluresDB (pluresdb npm package)
+- Updated all examples and dependencies to use pluresdb package instead of gun
 - Updated CI/CD pipeline to support automated versioning, changelog generation, and publishing
 - Added support for publishing to both npm and GitHub Packages
 

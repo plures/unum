@@ -2,7 +2,7 @@
  * unum - PluresDB-powered Component Wrapper
  * 
  * This module provides a higher-level component wrapper that simplifies
- * binding Svelte components to PluresDB (@plures/pluresdb) data.
+ * binding Svelte components to PluresDB (pluresdb npm package) data.
  */
 import { gun as gunStore } from './GunContext.js';
 import { writable, get } from 'svelte/store';

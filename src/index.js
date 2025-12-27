@@ -1,7 +1,7 @@
 /**
  * unum - Local Svelte PluresDB Bindings
  *
- * A reactive Svelte binding library for PluresDB (@plures/pluresdb).
+ * A reactive Svelte binding library for PluresDB (pluresdb npm package).
  */
 
 // Export store implementation

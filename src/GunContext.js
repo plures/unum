@@ -4,7 +4,7 @@
  * This module provides a shared PluresDB instance for the entire application,
  * avoiding multiple initializations across components.
  * 
- * PluresDB is available at @plures/pluresdb on npm.
+ * PluresDB is available as the 'pluresdb' package on npm.
  */
 import { writable, derived } from 'svelte/store';
 
@@ -98,7 +98,7 @@ export function initializePlures() {
     initializationAttempts++;
     
     try {
-      // Ensure PluresDB is loaded (from @plures/pluresdb package or CDN)
+      // Ensure PluresDB is loaded (from pluresdb package or CDN)
       await loadPluresScript();
       
       const DB = window.PluresDB || window.GunDB || window.Gun;
