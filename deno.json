@@ -1,6 +1,6 @@
 {
   "name": "unum",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Modern Svelte bindings for Gun.js - combining reactive data with declarative templates",
   "author": "kbristol <kbristol.plures.io>",
   "license": "MIT",
@@ -56,4 +56,5 @@
   "test": {
     "include": ["tests/"]
   }
+
 } 
