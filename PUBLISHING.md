@@ -189,6 +189,7 @@ Follow [Semantic Versioning](https://semver.org/):
 ### PluresDB Package
 
 - **Package Name**: `pluresdb`
+- **Latest Version**: 1.3.0 (with Node.js N-API bindings)
 - **NPM Registry**: https://www.npmjs.com/package/pluresdb
 - **Deno**: Available via JSR at `@plures/pluresdb`
 

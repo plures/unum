@@ -4,7 +4,7 @@
     "svelte/action": "npm:svelte@^5.0.0-next.1/action",
     "svelte/store": "npm:svelte@^5.0.0-next.1/store",
     "unum/": "../../dist/",
-    "pluresdb": "npm:pluresdb@^1.0.1",
+    "pluresdb": "npm:pluresdb@^1.3.0",
     "std/": "https://deno.land/std@0.188.0/"
   },
   "tasks": {

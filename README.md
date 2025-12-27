@@ -2,7 +2,7 @@
 
 A modern Svelte binding library for [PluresDB](https://github.com/plures/pluresdb) with full Svelte 5 compatibility.
 
-PluresDB is published to npm as `pluresdb` and is also available as a Deno package. It provides a modern, graph-based database with real-time synchronization capabilities, inspired by and compatible with Gun.js.
+PluresDB is published to npm as `pluresdb` and is also available as a Deno package. It provides a modern, graph-based database with real-time synchronization capabilities, inspired by and compatible with Gun.js. Version 1.3.0 includes Node.js N-API bindings for enhanced performance.
 
 ## Features
 
@@ -11,6 +11,7 @@ PluresDB is published to npm as `pluresdb` and is also available as a Deno packa
 - **Action-Based**: Modern Svelte actions for DOM binding
 - **Store-Based**: Writable store implementation for reactive data
 - **Collection Support**: Easy handling of PluresDB collections
+- **PluresDB v1.3.0**: Supports latest PluresDB with Node.js N-API bindings and better-sqlite3 compatibility
 
 ## Installation
 
