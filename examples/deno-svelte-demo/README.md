@@ -51,6 +51,6 @@ This demo implements the same functionality as the SvelteKit demo, but with thes
 4. **Runtime**: Runs on Deno instead of Node.js
 
 The core features remain the same:
-- PluresDB for data persistence and synchronization
+- PluresDB (from the pluresdb npm package) for data persistence and synchronization
 - Svelte 5 runes for reactivity
 - Black-box component serialization patterns

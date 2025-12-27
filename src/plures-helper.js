@@ -2,6 +2,7 @@
  * unum - PluresDB Helper Utilities
  *
  * This module provides helper functions for working with PluresDB in Svelte.
+ * PluresDB is a Gun.js-compatible database available at npm package 'pluresdb'.
  */
 
 /**
@@ -19,7 +20,7 @@ export function getPlures(options) {
     }
   }
   
-  console.warn('PluresDB/Gun.js not available. Make sure to include it via CDN script tag.');
+  console.warn('PluresDB/Gun.js not available. Make sure to include it via CDN script tag or install the pluresdb npm package.');
   return null;
 }
 
