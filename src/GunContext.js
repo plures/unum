@@ -4,7 +4,7 @@
  * This module provides a shared PluresDB instance for the entire application,
  * avoiding multiple initializations across components.
  * 
- * PluresDB is available at @plures/pluresdb on npm.
+ * PluresDB is available as the 'pluresdb' package on npm.
  */
 import { writable, derived } from 'svelte/store';
 
@@ -26,12 +26,12 @@ const MAX_ATTEMPTS = 10;
 
 /**
  * Load PluresDB from CDN dynamically if not already loaded
- * Note: For production use, install @plures/pluresdb from npm instead of using CDN
+ * Note: For production use, install pluresdb from npm instead of using CDN
  */
 function loadPluresScript() {
   return new Promise((resolve, reject) => {
     // If PluresDB is already available, resolve immediately
-    // PluresDB can be loaded from @plures/pluresdb package
+    // PluresDB can be loaded from pluresdb package
     if (typeof window !== 'undefined' && (window.PluresDB || window.GunDB || window.Gun)) {
       return resolve(window.PluresDB || window.GunDB || window.Gun);
     }
@@ -55,8 +55,9 @@ function loadPluresScript() {
       return;
     }
 
-    // Create and add the script element (fallback to Gun.js CDN for compatibility)
-    // For production, use: import PluresDB from '@plures/pluresdb'
+    // Create and add the script element
+    // For production, use: import { GunDB } from 'pluresdb'
+    // Using Gun.js CDN as fallback for browser compatibility
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/gun/gun.js';
     script.async = true;
@@ -97,7 +98,7 @@ export function initializePlures() {
     initializationAttempts++;
     
     try {
-      // Ensure PluresDB is loaded (from @plures/pluresdb package or CDN)
+      // Ensure PluresDB is loaded (from pluresdb package or CDN)
       await loadPluresScript();
       
       const DB = window.PluresDB || window.GunDB || window.Gun;

@@ -60,14 +60,17 @@
 - [x] Make sure LICENSE file is included in the package 
 
 ## Examples
-- [ ] Update examples to demonstrate PluresDB integration
-- [ ] Update Deno-specific example for PluresDB
+- [x] Update examples to demonstrate PluresDB integration
+- [x] Update Deno-specific example for PluresDB
+- [x] Update package dependencies to use pluresdb npm package
 - [ ] Test examples in respective environments
-- [ ] Document required permissions for Deno example
+- [x] Document required permissions for Deno example
 
 ## Notes on PluresDB Migration
 PluresDB is a P2P graph database inspired by Gun.js with a Gun.js-compatible API. The migration primarily involves:
 - Renaming variables and comments from "gun" to "plures" or "db"
-- Updating documentation to reference PluresDB
+- Updating documentation to reference PluresDB (pluresdb npm package)
+- Updating package dependencies from gun to pluresdb
 - Maintaining backward compatibility through legacy exports
 - The core API remains compatible since PluresDB implements Gun.js-compatible methods (get, put, on, once, map, etc.)
+- PluresDB is available as the 'pluresdb' package on npm (not @plures/pluresdb)
