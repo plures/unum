@@ -1,6 +1,6 @@
 {
   "name": "@plures/unum",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Modern Svelte bindings for PluresDB (pluresdb npm package) with Svelte 4 and 5 compatibility",
   "type": "module",
   "main": "dist/index.js",
@@ -47,4 +47,3 @@
     "vitest": "^1.0.0"
   }
 }
-
