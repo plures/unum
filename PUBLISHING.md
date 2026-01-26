@@ -40,7 +40,7 @@ Publishing to GitHub Packages uses the built-in `GITHUB_TOKEN` that GitHub Actio
 
 The workflow automatically:
 - Uses `GITHUB_TOKEN` for authentication
-- Has `packages: write` permission configured
+- Has `packages: write` permission configured  
 - Publishes the package as `@plures/unum` to GitHub Packages
 
 ## Prerequisites
