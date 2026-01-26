@@ -6,15 +6,48 @@ This document describes how to publish the `unum` package to npm using the autom
 
 PluresDB is published to npm as `pluresdb` and is also available as a Deno package. It provides a modern, graph-based database with real-time synchronization capabilities, inspired by and compatible with Gun.js. Unum provides Svelte bindings for PluresDB.
 
+## Authentication Tokens
+
+### Do I need a token to publish to GitHub Packages?
+
+**Yes**, but it's automatically provided by GitHub Actions. You **do not** need to manually configure any token for GitHub Packages publishing.
+
+### Token Requirements Summary
+
+| Registry | Token Required | Configuration Needed |
+|----------|---------------|---------------------|
+| **npm** | ✅ Yes - Manual | Must configure `NPM_TOKEN` secret |
+| **GitHub Packages** | ✅ Yes - Automatic | Uses built-in `GITHUB_TOKEN` (no setup needed) |
+
+### NPM Token (Manual Setup Required)
+
+To publish to npm, you must manually configure an NPM authentication token:
+
+1. **Get your npm token**:
+   - Log in to [npmjs.com](https://www.npmjs.com)
+   - Go to Access Tokens → Generate New Token
+   - Select "Automation" type
+   - Token requires: Read and write permissions for packages
+
+2. **Configure repository secret**:
+   - Go to: Repository Settings → Secrets and variables → Actions → New repository secret
+   - Name: `NPM_TOKEN`
+   - Value: Paste your npm authentication token
+
+### GitHub Packages Token (Automatic)
+
+Publishing to GitHub Packages uses the built-in `GITHUB_TOKEN` that GitHub Actions automatically provides to every workflow. **No manual configuration is required.**
+
+The workflow automatically:
+- Uses `GITHUB_TOKEN` for authentication
+- Has `packages: write` permission configured  
+- Publishes the package as `@plures/unum` to GitHub Packages
+
 ## Prerequisites
 
 Before publishing, ensure:
 
-1. **NPM Token**: The repository has an `NPM_TOKEN` secret configured in GitHub Settings
-   - Go to: Repository Settings → Secrets and variables → Actions → New repository secret
-   - Name: `NPM_TOKEN`
-   - Value: Your npm authentication token (get from npmjs.com)
-   - Token requires: Read and write permissions for packages
+1. **NPM Token Configured**: The repository has an `NPM_TOKEN` secret configured (see "Authentication Tokens" section above)
 
 2. **Version Update**: Update the version in `package.json` following [Semantic Versioning](https://semver.org/)
    ```bash
@@ -153,12 +186,25 @@ If the GitHub Actions workflow fails:
 1. **Check the workflow logs**: Go to Actions → Failed workflow → Review error messages
 
 2. **Common issues**:
-   - **Authentication failed**: Verify `NPM_TOKEN` secret is configured correctly
+   - **NPM authentication failed**: Verify `NPM_TOKEN` secret is configured correctly
+   - **GitHub Packages authentication failed**: Check that the workflow has `packages: write` permission (already configured in workflow files)
    - **Version already exists**: Update version in `package.json`
    - **Tests failed**: Fix failing tests before publishing
    - **Build failed**: Ensure TypeScript compilation succeeds locally
 
 3. **Retry**: Fix the issue, create a new tag/release, and try again
+
+### GitHub Packages Authentication Issues
+
+If you encounter authentication errors when publishing to GitHub Packages:
+
+1. **Verify workflow permissions**: The workflow must have `packages: write` permission
+   - This is already configured in `.github/workflows/release.yml` and `.github/workflows/publish-npm.yml`
+   - The `GITHUB_TOKEN` is automatically injected by GitHub Actions
+
+2. **Check workflow runs**: Go to Actions tab and review the logs for detailed error messages
+
+3. **Note**: Unlike npm, GitHub Packages does not require manual token configuration
 
 ### Manual Republish
 

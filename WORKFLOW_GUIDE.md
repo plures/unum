@@ -107,7 +107,8 @@ Changelogs are automatically generated from git commits between releases:
 - Check GitHub Actions logs
 
 ### Publishing Failed
-- Verify NPM_TOKEN secret is configured
+- **npm**: Verify NPM_TOKEN secret is configured (required)
+- **GitHub Packages**: Uses automatic GITHUB_TOKEN (no setup needed)
 - Check npm package version doesn't already exist
 - Review workflow logs for specific errors
 
