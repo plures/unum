@@ -15,8 +15,15 @@ Before publishing, ensure:
    - Name: `NPM_TOKEN`
    - Value: Your npm authentication token (get from npmjs.com)
    - Token requires: Read and write permissions for packages
+   - **Note**: This token is **only required for publishing to npm**
 
-2. **Version Update**: Update the version in `package.json` following [Semantic Versioning](https://semver.org/)
+2. **GitHub Packages Token**: **No manual setup required!**
+   - GitHub Actions automatically provides a `GITHUB_TOKEN` for each workflow run
+   - This token has the necessary permissions to publish to GitHub Packages
+   - You do **not** need to create or configure any token for GitHub Packages
+   - The workflow already uses `GITHUB_TOKEN` in the publishing steps
+
+3. **Version Update**: Update the version in `package.json` following [Semantic Versioning](https://semver.org/)
    ```bash
    npm version patch  # For bug fixes (0.1.0 → 0.1.1)
    npm version minor  # For new features (0.1.0 → 0.2.0)
@@ -144,6 +151,54 @@ The publish workflow includes npm provenance (`--provenance` flag), which:
 - Enhances security and supply chain transparency
 - Displays a badge on the npm package page
 
+## Authentication Tokens
+
+### Do I Need a Token for GitHub Packages?
+
+**No, you do not need to manually create or configure a token for GitHub Packages.**
+
+The GitHub Actions workflows automatically use the built-in `GITHUB_TOKEN`, which is:
+- Automatically provided by GitHub Actions for every workflow run
+- Pre-configured with the necessary permissions to publish to GitHub Packages
+- Scoped to your repository and expires after the workflow run
+- Already used in the `release.yml` and `publish-npm.yml` workflows
+
+### Tokens Summary
+
+| Registry | Token Required | Token Name | Setup Required |
+|----------|---------------|------------|----------------|
+| **npm** (npmjs.com) | ✅ Yes | `NPM_TOKEN` | Manual setup in repository secrets |
+| **GitHub Packages** | ❌ No | `GITHUB_TOKEN` | Automatically provided by GitHub Actions |
+
+### Setting Up NPM_TOKEN (Required for npm publishing)
+
+1. **Generate token on npmjs.com**:
+   - Log in to https://npmjs.com
+   - Go to Account Settings → Access Tokens
+   - Click "Generate New Token" → "Automation" type
+   - Copy the generated token
+
+2. **Add to GitHub repository secrets**:
+   - Go to your repository on GitHub
+   - Navigate to Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `NPM_TOKEN`
+   - Value: Paste your npm token
+   - Click "Add secret"
+
+### GITHUB_TOKEN Permissions
+
+The workflows are already configured with the necessary permissions:
+
+```yaml
+permissions:
+  contents: write      # For creating releases
+  id-token: write      # For npm provenance
+  packages: write      # For GitHub Packages publishing
+```
+
+These permissions allow `GITHUB_TOKEN` to publish to GitHub Packages without any additional configuration.
+
 ## Troubleshooting
 
 ### Publication Failed
@@ -153,7 +208,8 @@ If the GitHub Actions workflow fails:
 1. **Check the workflow logs**: Go to Actions → Failed workflow → Review error messages
 
 2. **Common issues**:
-   - **Authentication failed**: Verify `NPM_TOKEN` secret is configured correctly
+   - **Authentication failed (npm)**: Verify `NPM_TOKEN` secret is configured correctly
+   - **Authentication failed (GitHub Packages)**: Check that workflow has `packages: write` permission (already configured)
    - **Version already exists**: Update version in `package.json`
    - **Tests failed**: Fix failing tests before publishing
    - **Build failed**: Ensure TypeScript compilation succeeds locally
