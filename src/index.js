@@ -7,6 +7,9 @@
 // Export store implementation
 export * from './store.js';
 
+// Export design mode support
+export * from './designMode.js';
+
 // Export actions
 export * from './actions.js';
 
