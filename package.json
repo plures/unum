@@ -1,10 +1,20 @@
 {
   "name": "@plures/unum",
-  "version": "0.2.3",
-  "description": "Modern Svelte bindings for PluresDB (pluresdb npm package) with Svelte 4 and 5 compatibility",
+  "version": "0.3.0",
+  "description": "Reactive Svelte bindings for PluresDB — backend-agnostic, TypeScript-first",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./adapters": {
+      "types": "./dist/adapters/index.d.ts",
+      "import": "./dist/adapters/index.js"
+    }
+  },
   "files": [
     "dist",
     "LICENSE.md"
@@ -13,11 +23,7 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "test:prepublish": "node scripts/test-prepublish.js",
-    "lint": "eslint src/**/*.js",
-    "prepublishOnly": "npm run test && npm run build",
-    "publish:npm": "npm run prepublishOnly && npm publish --access public"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "svelte",
@@ -25,10 +31,10 @@
     "reactive",
     "store",
     "runes",
-    "database",
-    "decentralized",
     "pluresdb",
-    "p2p"
+    "database",
+    "p2p",
+    "typescript"
   ],
   "author": "Oasis Team",
   "license": "MIT",
@@ -40,9 +46,8 @@
     "svelte": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^1.0.0",
-    "eslint": "^8.0.0",
-    "jsdom": "^24.0.0",
+    "jsdom": "^29.0.0",
+    "svelte": "^5.0.0",
     "typescript": "^5.8.2",
     "vitest": "^1.0.0"
   }
