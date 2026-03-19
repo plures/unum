@@ -4,6 +4,19 @@
  * A reactive Svelte binding library for PluresDB (pluresdb npm package).
  */
 
+// Export TypeScript types
+export * from './types.js';
+
+// Export DbAdapter abstraction and context initializer
+export * from './DbContext.js';
+
+// Export adapters
+export * from './adapters/pluresdb.js';
+export * from './adapters/gun.js';
+
+// Export runes API (pluresData, pluresDerived, pluresBind)
+export * from './runes.js';
+
 // Export store implementation
 export * from './store.js';
 
@@ -16,34 +29,19 @@ export * from './actions.js';
 // Export PluresDB helpers
 export * from './plures-helper.js';
 
-// Also export from gun-helper for backward compatibility
-export * from './plures-helper.js';
-
 /**
  * Re-export unum and connect functions for easier imports
  */
 import { unum, connect } from './unum.js';
-import { gun } from './GunContext.js';
 
-export { unum, connect, gun };
-export { gun as db, gun as plures }; // Alternative export names
+export { unum, connect };
 
 /**
  * Creates a complete PluresDB-powered component with automatic synchronization
  * 
- * This higher-level function creates a wrapped component that automatically
- * syncs with PluresDB (from the 'pluresdb' npm package), without requiring any knowledge of 
- * the component's props structure. Just specify the component and path, and 
- * it handles the rest.
- * 
- * @param {Object} options - Configuration options
- * @param {Function} options.component - The component to bind with PluresDB data
- * @param {Object} options.db - PluresDB instance from 'pluresdb' package (can also use 'gun' for compatibility)
- * @param {string} options.path - PluresDB path for data storage
- * @param {string} [options.id] - Optional ID for multiple instances of the same component
- * @param {Object} [options.defaultData] - Default data to use ONLY if no data exists yet
- * @param {Object} [options.props] - Additional props to pass to the component (not synced with PluresDB)
- * @returns {Function} A self-contained component that handles the synchronization
+ * Accepts either a raw DbAdapter-compatible instance (`adapter`) or a direct
+ * PluresDB/Gun instance via the legacy `db` / `gun` option keys — any object
+ * that exposes `.get(path)` will work.
  */
 export function pluresComponent(options) {
   const { component, db, gun, path, id, defaultData = {}, props: extraProps = {} } = options;
