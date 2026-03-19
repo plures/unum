@@ -1,42 +1,66 @@
 /**
- * unum - Gun.js Adapter
+ * Gun.js adapter — wraps an existing Gun.js instance as a DbAdapter.
  *
- * Wraps an existing Gun.js instance so that it satisfies the `DbAdapter` /
- * `DbNode` interfaces used throughout unum.  Use this when migrating a
- * Gun.js codebase to unum's adapter pattern without switching databases yet.
+ * Use this when migrating a Gun.js codebase to unum's adapter pattern
+ * without switching databases.  Install Gun yourself (`npm install gun`)
+ * and pass the instance here — no CDN loading.
  *
- * **Important:** This adapter does NOT load Gun from CDN.  You must install
- * Gun yourself (`npm install gun`) and construct the instance before passing
- * it here.  This removes the CDN dependency that existed in the old
- * `GunContext.js`.
- *
- * Usage:
+ * @example
  * ```ts
  * import Gun from 'gun';
- * import { GunAdapter } from '@plures/unum/adapters/gun';
- * import { initializePlures } from '@plures/unum';
+ * import { initDb } from '@plures/unum';
+ * import { createGunAdapter } from '@plures/unum/adapters/gun';
  *
  * const gun = Gun({ peers: ['http://localhost:8765/gun'] });
- * initializePlures(new GunAdapter(gun));
+ * initDb(createGunAdapter(gun));
  * ```
  */
-import type { DbAdapter, DbNode } from '../types.js';
+
+import type { ChainNode, DataCallback, DbAdapter, Unsubscribe } from '../types.js';
 
 /**
- * Wraps a Gun.js instance as a `DbAdapter`.
+ * Wrap a Gun.js instance as a DbAdapter.
  *
- * Gun.js already exposes `get`, `put`, `on`, `once`, `off`, and `map` — the
- * same API modelled by `DbNode` — so this is a zero-overhead typed façade.
+ * Gun already exposes `get`, `put`, `on`, `once`, `off`, and `map` — the
+ * same chain API modelled by `ChainNode` — so this is a lightweight typed
+ * façade with no runtime overhead.
+ *
+ * @param gun - A Gun.js instance (from the `gun` npm package).
  */
-export class GunAdapter implements DbAdapter {
-  /** @param gun — A Gun.js instance (from the `gun` npm package). */
-  constructor(private readonly gun: DbNode) {}
-
-  /**
-   * Return a reference to a top-level path in the Gun graph.
-   * The returned object satisfies `DbNode` and can be chained further.
-   */
-  get(path: string): DbNode {
-    return this.gun.get(path);
+export function createGunAdapter(gun: any): DbAdapter {
+  function wrapChain(chain: any): ChainNode {
+    return {
+      get(key: string) {
+        return wrapChain(chain.get(key));
+      },
+      put(data: any, cb?: DataCallback) {
+        chain.put(data, cb);
+        return this;
+      },
+      set(data: any, cb?: DataCallback) {
+        chain.set ? chain.set(data, cb) : chain.get(Date.now().toString()).put(data, cb);
+        return this;
+      },
+      on(cb: DataCallback): Unsubscribe {
+        const ref = chain.on(cb);
+        // Gun returns the chain node, not an unsubscribe function
+        return typeof ref === 'function' ? ref : () => chain.off();
+      },
+      once(cb: DataCallback) {
+        chain.once(cb);
+      },
+      map() {
+        return wrapChain(chain.map());
+      },
+      off() {
+        chain.off();
+      },
+    };
   }
+
+  return {
+    root() {
+      return wrapChain(gun);
+    },
+  };
 }

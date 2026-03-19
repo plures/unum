@@ -1,37 +1,51 @@
 /**
- * unum - PluresDB Adapter
+ * PluresDB adapter — native adapter using PluresDB's chain API.
  *
- * Wraps a native PluresDB instance (from the `pluresdb` npm package) so that
- * it satisfies the `DbAdapter` / `DbNode` interfaces used throughout unum.
- *
- * Usage:
- * ```ts
- * import { PluresDB } from 'pluresdb';
- * import { PluresDbAdapter } from '@plures/unum/adapters/pluresdb';
- * import { initializePlures } from '@plures/unum';
- *
- * const db = new PluresDB({ /* ...options *\/ });
- * initializePlures(new PluresDbAdapter(db));
- * ```
+ * PluresDB exposes a Gun-compatible API: db.get(), .put(), .on(), .once(), .map()
+ * This adapter wraps any PluresDB (or Gun) instance.
  */
-import type { DbAdapter, DbNode } from '../types.js';
+
+import type { ChainNode, DataCallback, DbAdapter, Unsubscribe } from '../types.js';
 
 /**
- * Wraps any PluresDB-compatible instance as a `DbAdapter`.
+ * Wrap a PluresDB/Gun instance as a DbAdapter.
  *
- * PluresDB exposes the same chained-query API as Gun.js (`get`, `put`, `on`,
- * `once`, `off`, `map`), so the adapter is a lightweight typed façade with no
- * runtime overhead.
+ * @param db - A PluresDB or Gun instance (anything with .get/.put/.on/.once/.map)
  */
-export class PluresDbAdapter implements DbAdapter {
-  /** @param db — A PluresDB instance from the `pluresdb` npm package. */
-  constructor(private readonly db: DbNode) {}
-
-  /**
-   * Return a reference to a top-level path in the database.
-   * The returned object satisfies `DbNode` and can be chained further.
-   */
-  get(path: string): DbNode {
-    return this.db.get(path);
+export function createPluresDbAdapter(db: any): DbAdapter {
+  function wrapChain(chain: any): ChainNode {
+    return {
+      get(key: string) {
+        return wrapChain(chain.get(key));
+      },
+      put(data: any, cb?: DataCallback) {
+        chain.put(data, cb);
+        return this;
+      },
+      set(data: any, cb?: DataCallback) {
+        chain.set(data, cb);
+        return this;
+      },
+      on(cb: DataCallback): Unsubscribe {
+        const ref = chain.on(cb);
+        // Gun returns the chain, not an unsub function
+        return typeof ref === 'function' ? ref : () => chain.off();
+      },
+      once(cb: DataCallback) {
+        chain.once(cb);
+      },
+      map() {
+        return wrapChain(chain.map());
+      },
+      off() {
+        chain.off();
+      },
+    };
   }
+
+  return {
+    root() {
+      return wrapChain(db);
+    },
+  };
 }

@@ -4,10 +4,10 @@
  * Typed helper functions for working with DbAdapter data in Svelte.
  *
  * The old `plures-helper.js` relied on `window.GunDB` / `window.Gun` globals
- * loaded from a CDN.  This version removes all CDN / window-global
- * dependencies.  Pass your `DbAdapter` instance in directly.
+ * loaded from a CDN. This version removes all CDN / window-global
+ * dependencies.
  */
-import type { DbAdapter, DbNode } from './types.js';
+import type { DbAdapter, ChainNode } from './types.js';
 
 // ---------------------------------------------------------------------------
 // Adapter helpers
@@ -15,15 +15,13 @@ import type { DbAdapter, DbNode } from './types.js';
 
 /**
  * Returns `true` when a DbAdapter has been provided (non-null).
- *
- * @example
- * ```ts
- * if (isPluresAvailable(adapter)) { ... }
- * ```
  */
 export function isPluresAvailable(adapter: DbAdapter | null | undefined): adapter is DbAdapter {
   return adapter != null;
 }
+
+/** @deprecated Use `isPluresAvailable` instead. */
+export const isGunAvailable = isPluresAvailable;
 
 // ---------------------------------------------------------------------------
 // Data helpers
@@ -32,16 +30,6 @@ export function isPluresAvailable(adapter: DbAdapter | null | undefined): adapte
 /**
  * Safely reads a deeply nested property from a plain object using a
  * dot-delimited `path` string.
- *
- * @param obj          — Source object.
- * @param path         — Dot-separated property path, e.g. `'user.profile.name'`.
- * @param defaultValue — Value to return when the path cannot be resolved.
- *
- * @example
- * ```ts
- * safeGet({ user: { name: 'Alice' } }, 'user.name'); // 'Alice'
- * safeGet({}, 'missing.key', 'default');             // 'default'
- * ```
  */
 export function safeGet<T = unknown>(
   obj: unknown,
@@ -67,19 +55,7 @@ export function safeGet<T = unknown>(
 
 /**
  * Safely transforms a plain object of database records into an array.
- *
- * Skips Gun/PluresDB internal `_` metadata keys and entries for which
- * the callback throws.  An optional `filterFn` can pre-filter entries
- * before the mapping step.
- *
- * @param dbData   — Raw object returned by a database `once` / `on` callback.
- * @param callback — `(key, value) => mappedItem` transformation function.
- * @param filterFn — Optional `(key, value) => boolean` predicate.
- *
- * @example
- * ```ts
- * const items = safeMap(rawData, (id, item) => ({ id, ...item }));
- * ```
+ * Skips Gun/PluresDB internal `_` metadata keys.
  */
 export function safeMap<T = unknown, R = unknown>(
   dbData: unknown,
@@ -112,28 +88,26 @@ export function safeMap<T = unknown, R = unknown>(
 }
 
 /**
- * Builds a chained `DbNode` reference from a dot-separated `path` string,
+ * Builds a chained `ChainNode` reference from a dot-separated `path` string,
  * with support for `#` as a shorthand for `.map()`.
- *
- * @param adapter — A `DbAdapter` instance.
- * @param path    — Dot-separated path, optionally containing `#` for map().
  *
  * @example
  * ```ts
  * const ref = safeChain(adapter, 'todos.#');
- * // equivalent to: adapter.get('todos').map()
+ * // equivalent to: adapter.root().get('todos').map()
  * ```
  */
-export function safeChain(adapter: DbAdapter | null, path?: string): DbNode | null {
+export function safeChain(adapter: DbAdapter | null, path?: string): ChainNode | null {
   if (!adapter) return null;
 
   try {
-    if (!path) return adapter.get('');
+    const root = adapter.root();
+    if (!path) return root;
 
     const parts = path.split('.').filter(Boolean);
-    if (parts.length === 0) return adapter.get('');
+    if (parts.length === 0) return root;
 
-    let chain: DbNode = adapter.get(parts[0]);
+    let chain: ChainNode = root.get(parts[0]);
 
     for (let i = 1; i < parts.length; i++) {
       const part = parts[i];
@@ -150,23 +124,17 @@ export function safeChain(adapter: DbAdapter | null, path?: string): DbNode | nu
   }
 }
 
-// ---------------------------------------------------------------------------
-// Legacy exports (backward compatibility with plures-helper.js consumers)
-// ---------------------------------------------------------------------------
-
-/** @deprecated Use `isPluresAvailable` instead. */
-export const isGunAvailable = isPluresAvailable;
-
 /**
  * @deprecated
  * The old `getPlures(options)` instantiated a database from `window.GunDB` /
- * `window.Gun`.  That CDN-based pattern has been removed.  Construct your DB
- * instance directly and wrap it in `PluresDbAdapter` or `GunAdapter` instead.
+ * `window.Gun`. That CDN-based pattern has been removed. Construct your DB
+ * instance directly and wrap it in `createPluresDbAdapter`, then call
+ * `initDb()` instead.
  */
 export function getPlures(_options?: unknown): null {
   console.warn(
     '[unum] getPlures() is deprecated and no longer creates a database instance. ' +
-    'Construct your DB and wrap it in PluresDbAdapter or GunAdapter, then call initializePlures().',
+    'Use createPluresDbAdapter() or createGunAdapter() with initDb() instead.',
   );
   return null;
 }
