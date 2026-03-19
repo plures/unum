@@ -11,7 +11,7 @@ import type { DbAdapter, DbNode, DbUnsubscribe } from '../src/types.js';
 import { PluresDbAdapter } from '../src/adapters/pluresdb.js';
 import { GunAdapter } from '../src/adapters/gun.js';
 import { initializePlures, db, gun, plures } from '../src/DbContext.js';
-import { pluresData, pluresDerived, pluresBind, gunData, gunDerived, gunBind } from '../src/runes.ts';
+import { pluresData, pluresDerived, pluresBind, gunData, gunDerived, gunBind } from '../src/runes.js';
 
 // ---------------------------------------------------------------------------
 // Helpers

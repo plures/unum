@@ -111,7 +111,7 @@ export function pluresData<T extends Record<string, unknown> = Record<string, un
         }
       });
       dbUnsubscribe = () => {
-        ref.map().off();
+        mapRef.off();
         if (typeof result === 'function') result();
       };
     }

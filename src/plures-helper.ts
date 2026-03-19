@@ -130,7 +130,9 @@ export function safeChain(adapter: DbAdapter | null, path?: string): DbNode | nu
   try {
     if (!path) return adapter.get('');
 
-    const parts = path.split('.');
+    const parts = path.split('.').filter(Boolean);
+    if (parts.length === 0) return adapter.get('');
+
     let chain: DbNode = adapter.get(parts[0]);
 
     for (let i = 1; i < parts.length; i++) {
