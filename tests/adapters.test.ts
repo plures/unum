@@ -221,3 +221,58 @@ describe('pluresBind (subscription-based)', () => {
     profile.destroy();
   });
 });
+
+describe('memory adapter — event bubbling', () => {
+  it('root.on() receives child writes with full path as key', () => {
+    initDb(createMemoryAdapter());
+    const root = getRoot();
+    const events: Array<{ data: any; key: string }> = [];
+    root.on((data: any, key: string) => events.push({ data, key }));
+
+    root.get('sprint').get('current').put({ name: 'Sprint 1' });
+    root.get('notes').get('content').put('hello world');
+
+    expect(events.length).toBe(2);
+    expect(events[0]).toEqual({ data: { name: 'Sprint 1' }, key: 'sprint/current' });
+    expect(events[1]).toEqual({ data: 'hello world', key: 'notes/content' });
+    destroyDb();
+  });
+
+  it('root.on() receives deeply nested writes', () => {
+    initDb(createMemoryAdapter());
+    const root = getRoot();
+    const events: Array<{ key: string }> = [];
+    root.on((_data: any, key: string) => events.push({ key }));
+
+    root.get('a').get('b').get('c').get('d').put(42);
+
+    expect(events.length).toBe(1);
+    expect(events[0].key).toBe('a/b/c/d');
+    destroyDb();
+  });
+
+  it('intermediate node.on() also receives child writes', () => {
+    initDb(createMemoryAdapter());
+    const root = getRoot();
+    const events: Array<{ key: string }> = [];
+    root.get('sprint').on((_data: any, key: string) => events.push({ key }));
+
+    root.get('sprint').get('current').put({ name: 'test' });
+
+    // Direct child listener fires with key = 'current'
+    expect(events.some(e => e.key === 'sprint/current')).toBe(true);
+    destroyDb();
+  });
+
+  it('map listeners on root receive child writes', () => {
+    initDb(createMemoryAdapter());
+    const root = getRoot();
+    const events: Array<{ key: string }> = [];
+    root.map().on((_data: any, key: string) => events.push({ key }));
+
+    root.get('sprint').get('current').put({ name: 'test' });
+
+    expect(events.length).toBeGreaterThan(0);
+    destroyDb();
+  });
+});

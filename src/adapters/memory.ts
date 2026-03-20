@@ -51,11 +51,22 @@ export function createMemoryAdapter(): DbAdapter {
         node.data = data;
         const key = path[path.length - 1];
         notify(node, key);
-        // notify parent map listeners
-        if (path.length > 0) {
-          const parent = resolve(root, path.slice(0, -1));
-          for (const mcb of parent.mapListeners) {
-            try { mcb(data, key); } catch (e) { console.error('[unum/memory]', e); }
+        // Bubble up: notify map listeners and listeners on all ancestors.
+        // This ensures root.on() sees every write, no matter how deep.
+        for (let i = path.length - 1; i >= 0; i--) {
+          const ancestorPath = path.slice(0, i);
+          const ancestor = resolve(root, ancestorPath);
+          const childKey = path[i];
+          for (const mcb of ancestor.mapListeners) {
+            try { mcb(data, childKey); } catch (e) { console.error('[unum/memory]', e); }
+          }
+          // Also notify direct listeners on ancestors with the full path as key
+          // so root.on() receives (data, 'sprint/current') for deep writes.
+          if (ancestor !== node) {
+            const fullKey = path.join('/');
+            for (const lcb of ancestor.listeners) {
+              try { lcb(data, fullKey); } catch (e) { console.error('[unum/memory]', e); }
+            }
           }
         }
         cb?.(data, key);
