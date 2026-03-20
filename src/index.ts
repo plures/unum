@@ -12,6 +12,7 @@ export { PluresStore, createPluresStore } from './store.js';
 // Adapters
 export { createPluresDbAdapter } from './adapters/pluresdb.js';
 export { createMemoryAdapter } from './adapters/memory.js';
+export { createGunAdapter } from './adapters/gun.js';
 
 // Types
 export type {
