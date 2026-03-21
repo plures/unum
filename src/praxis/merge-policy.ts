@@ -109,45 +109,71 @@ export function mergePolicyModule(config: MergePolicyConfig = {}) {
           ],
         },
         impl: (state, events) => {
-          const event = events.find(MergeRequested.is);
-          if (!event) return RuleResult.skip('No merge.requested event');
-
-          const { path, sources } = event.payload;
-          if (sources.length === 0) return RuleResult.noop('No sources to merge');
-
-          if (sources.length === 1) {
-            return RuleResult.emit([
-              MergeResolved.create({ path, winner: sources[0].name, value: sources[0].value }),
-            ]);
+          const mergeEvents = events.filter(MergeRequested.is);
+          if (mergeEvents.length === 0) {
+            return RuleResult.skip('No merge.requested event');
           }
+
+          const emitted: Array<ReturnType<typeof MergeResolved.create> | ReturnType<typeof MergeConflictDetected.create>> = [];
+          let hasMergeWithSources = false;
 
           const contextPriorities = state.context.sourcePriorities ?? {};
           const effectivePriorities = { ...priorities, ...contextPriorities };
 
-          const ranked = [...sources].sort((a, b) => {
-            const pa = a.priority ?? effectivePriorities[a.name] ?? 0;
-            const pb = b.priority ?? effectivePriorities[b.name] ?? 0;
-            return pb - pa;
-          });
+          for (const event of mergeEvents) {
+            const { path, sources } = event.payload;
 
-          const top = ranked[0];
-          const second = ranked[1];
-          const topPriority = top.priority ?? effectivePriorities[top.name] ?? 0;
-          const secondPriority = second.priority ?? effectivePriorities[second.name] ?? 0;
+            if (sources.length === 0) {
+              // Keep behavior consistent: if *all* merge events have zero sources,
+              // we'll return a noop after processing them.
+              continue;
+            }
 
-          if (topPriority === secondPriority) {
-            return RuleResult.emit([
-              MergeConflictDetected.create({
-                path,
-                sources: sources.map(s => s.name),
-                values: sources.map(s => s.value),
-              }),
-            ]);
+            hasMergeWithSources = true;
+
+            if (sources.length === 1) {
+              emitted.push(
+                MergeResolved.create({ path, winner: sources[0].name, value: sources[0].value }),
+              );
+              continue;
+            }
+
+            const ranked = [...sources].sort((a, b) => {
+              const pa = a.priority ?? effectivePriorities[a.name] ?? 0;
+              const pb = b.priority ?? effectivePriorities[b.name] ?? 0;
+              return pb - pa;
+            });
+
+            const top = ranked[0];
+            const second = ranked[1];
+            const topPriority = top.priority ?? effectivePriorities[top.name] ?? 0;
+            const secondPriority = second.priority ?? effectivePriorities[second.name] ?? 0;
+
+            if (topPriority === secondPriority) {
+              emitted.push(
+                MergeConflictDetected.create({
+                  path,
+                  sources: sources.map(s => s.name),
+                  values: sources.map(s => s.value),
+                }),
+              );
+            } else {
+              emitted.push(
+                MergeResolved.create({ path, winner: top.name, value: top.value }),
+              );
+            }
           }
 
-          return RuleResult.emit([
-            MergeResolved.create({ path, winner: top.name, value: top.value }),
-          ]);
+          if (!hasMergeWithSources) {
+            return RuleResult.noop('No sources to merge');
+          }
+
+          if (emitted.length === 0) {
+            // Defensive fallback: no facts emitted even though we had sources.
+            return RuleResult.noop('No merge results produced');
+          }
+
+          return RuleResult.emit(emitted);
         },
       }),
 
