@@ -13,6 +13,10 @@
     "./adapters": {
       "types": "./dist/adapters/index.d.ts",
       "import": "./dist/adapters/index.js"
+    },
+    "./praxis": {
+      "types": "./dist/praxis/index.d.ts",
+      "import": "./dist/praxis/index.js"
     }
   },
   "files": [
@@ -21,8 +25,10 @@
   ],
   "scripts": {
     "build": "tsc",
+    "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:prepublish": "npm run build",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -43,9 +49,16 @@
     "url": "https://github.com/plures/unum"
   },
   "peerDependencies": {
+    "@plures/praxis": "^1.4.0",
     "svelte": "^4.0.0 || ^5.0.0"
   },
+  "peerDependenciesMeta": {
+    "@plures/praxis": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@plures/praxis": "^1.4.0",
     "jsdom": "^29.0.0",
     "svelte": "^5.0.0",
     "typescript": "^5.8.2",
