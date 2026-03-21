@@ -13,6 +13,10 @@
     "./adapters": {
       "types": "./dist/adapters/index.d.ts",
       "import": "./dist/adapters/index.js"
+    },
+    "./praxis": {
+      "types": "./dist/praxis/index.d.ts",
+      "import": "./dist/praxis/index.js"
     }
   },
   "files": [
@@ -50,5 +54,8 @@
     "svelte": "^5.0.0",
     "typescript": "^5.8.2",
     "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "@plures/praxis": "^1.4.0"
   }
 }
