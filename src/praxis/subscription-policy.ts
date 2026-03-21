@@ -234,10 +234,10 @@ export function subscriptionPolicyModule(config: SubscriptionPolicyConfig = {}) 
         description: 'Active subscriptions must not exceed the configured maximum.',
         contract: {
           ruleId: 'unum.subscription.no-over-subscription',
-          behavior: 'Fails when the number of unum.subscription.eligible facts exceeds maxSubscriptions.',
+          behavior: 'Fails when context.activeSubscriptions count exceeds maxSubscriptions.',
           examples: [
             {
-              given: 'maxSubscriptions is 2 and 3 eligible facts exist',
+              given: 'maxSubscriptions is 2 and context.activeSubscriptions has 3 entries',
               when: 'constraint is checked',
               then: 'constraint violation reported',
             },
@@ -247,9 +247,9 @@ export function subscriptionPolicyModule(config: SubscriptionPolicyConfig = {}) 
         impl: (state) => {
           if (maxSubscriptions === 0) return true;
 
-          const eligibleCount = state.facts.filter(SubscriptionEligible.is).length;
-          if (eligibleCount > maxSubscriptions) {
-            return `Subscription count ${eligibleCount} exceeds the maximum of ${maxSubscriptions}`;
+          const activeCount = state.context.activeSubscriptions?.length ?? 0;
+          if (activeCount > maxSubscriptions) {
+            return `Active subscription count ${activeCount} exceeds the maximum of ${maxSubscriptions}`;
           }
           return true;
         },

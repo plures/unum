@@ -318,6 +318,29 @@ describe('subscription-policy module', () => {
     ]);
     expect(result.state.facts.filter(StreamFiltered.is)).toHaveLength(1);
   });
+
+  it('constraint: reports violation when context.activeSubscriptions exceeds max', () => {
+    const registry = new PraxisRegistry();
+    registry.registerModule(subscriptionPolicyModule({ maxSubscriptions: 2 }) as any);
+    const engine = createPraxisEngine({
+      initialContext: { activeSubscriptions: ['s1', 's2', 's3'] },
+      registry,
+    });
+    const result = engine.step([]);
+    expect(result.diagnostics?.some(d => d.message?.includes('exceeds the maximum'))).toBe(true);
+  });
+
+  it('constraint: no violation when context.activeSubscriptions is within max', () => {
+    const registry = new PraxisRegistry();
+    registry.registerModule(subscriptionPolicyModule({ maxSubscriptions: 5 }) as any);
+    const engine = createPraxisEngine({
+      initialContext: { activeSubscriptions: ['s1', 's2'] },
+      registry,
+    });
+    const result = engine.step([]);
+    const violations = result.diagnostics?.filter(d => d.message?.includes('exceeds the maximum')) ?? [];
+    expect(violations).toHaveLength(0);
+  });
 });
 
 // ─── freshness ───────────────────────────────────────────────────────────────
