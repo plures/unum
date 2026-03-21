@@ -55,11 +55,13 @@ import {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function makeEngine<T>(module: ReturnType<typeof mergePolicyModule>, ctx: T) {
-  const registry = new PraxisRegistry<T>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  registry.registerModule(module as any);
-  return createPraxisEngine<T>({ initialContext: ctx, registry });
+function makeEngine<
+  TCtx,
+  TModule extends Parameters<PraxisRegistry<TCtx>['registerModule']>[0],
+>(module: TModule, ctx: TCtx) {
+  const registry = new PraxisRegistry<TCtx>();
+  registry.registerModule(module);
+  return createPraxisEngine<TCtx>({ initialContext: ctx, registry });
 }
 
 // ─── merge-policy ─────────────────────────────────────────────────────────────
