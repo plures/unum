@@ -174,6 +174,117 @@ export interface GraphRef<
 /** Unsubscribe function returned by on() */
 export type Unsubscribe = () => void;
 
+// ---------------------------------------------------------------------------
+// Collection types
+// ---------------------------------------------------------------------------
+
+/**
+ * A single item in a typed collection.
+ * `T` is the shape of the application data stored on the item.
+ */
+export interface CollectionItem<T = Record<string, any>> {
+  /** Unique identifier for this item */
+  id: string;
+  /** Application data stored on this item */
+  data: T;
+}
+
+/**
+ * Reactive collection query result.
+ *
+ * Implements the Svelte store protocol so it can be consumed with
+ * the `$store` auto-subscription syntax in Svelte 4, or wrapped in
+ * `$derived` in Svelte 5.
+ *
+ * @example
+ * ```svelte
+ * <script>
+ *   const col = createCollection<Task>('tasks');
+ *   const pending = col.query(items => items.filter(i => !i.data.done));
+ *   // Svelte 5: $derived(pending.value)
+ *   // Svelte 4: $pending
+ * </script>
+ * ```
+ */
+export interface CollectionQuery<T> {
+  /** Current computed value */
+  readonly value: T;
+  /** Svelte store protocol */
+  subscribe(cb: (value: T) => void): Unsubscribe;
+  /** Remove this query's internal subscription and release memory */
+  destroy(): void;
+}
+
+/**
+ * Reactive collection reference returned by `createCollection()`.
+ *
+ * Implements the Svelte 4 store protocol (`.subscribe()`) for backward
+ * compatibility, and exposes getter-based properties that work naturally
+ * with Svelte 5 `$derived` expressions.
+ *
+ * @example
+ * ```svelte
+ * <!-- Svelte 5 runes usage -->
+ * <script>
+ *   import { createCollection } from '@plures/unum';
+ *
+ *   interface Task { title: string; done: boolean }
+ *   const tasks = createCollection<Task>('tasks');
+ *
+ *   const pending = tasks.query(items => items.filter(i => !i.data.done));
+ *
+ *   $effect(() => tasks.subscribe(items => console.log('changed', items)));
+ * </script>
+ *
+ * {#each tasks.items as task}
+ *   <p>{task.data.title}</p>
+ * {/each}
+ * ```
+ */
+export interface CollectionRef<T = Record<string, any>> {
+  // ---- Reactive accessors (work with $derived in Svelte 5) ---------------
+
+  /** Current items as a flat array */
+  readonly items: Array<CollectionItem<T>>;
+  /** Number of items in the collection */
+  readonly size: number;
+
+  // ---- CRUD mutations -----------------------------------------------------
+
+  /** Add an item; accepts an optional `id` field. Returns the generated/provided ID */
+  add(data: T & { id?: string }): string;
+  /** Merge `data` into an existing item */
+  update(id: string, data: Partial<T>): void;
+  /** Remove an item by ID */
+  remove(id: string): void;
+  /** Retrieve a single item by ID, or `undefined` if not found */
+  get(id: string): CollectionItem<T> | undefined;
+
+  // ---- Reactive queries ---------------------------------------------------
+
+  /**
+   * Create a derived reactive query.
+   *
+   * The selector is re-evaluated every time the collection changes and the
+   * result is available via `.value` and the store `.subscribe()` protocol.
+   *
+   * ```ts
+   * const pending = tasks.query(items => items.filter(i => !i.data.done));
+   * // Svelte 5: $derived(pending.value)
+   * // Svelte 4: $pending
+   * ```
+   */
+  query<R>(selector: (items: Array<CollectionItem<T>>) => R): CollectionQuery<R>;
+
+  // ---- Svelte store protocol (Svelte 4 backward compat) ------------------
+
+  /** Subscribe to collection changes — Svelte 4 store protocol */
+  subscribe(cb: (items: Array<CollectionItem<T>>) => void): Unsubscribe;
+
+  /** Tear down all DB subscriptions and release memory */
+  destroy(): void;
+}
+
 /**
  * Chain node — the fluent API for navigating and mutating data.
  * Mirrors PluresDB/Gun's chain API but is backend-agnostic.
