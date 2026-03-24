@@ -125,17 +125,17 @@ export function createCollection<
 
     // ---- CRUD mutations ---------------------------------------------------
 
-    add(itemData): string {
-      const anyData = itemData as any;
-      const id: string = anyData.id ?? crypto.randomUUID().slice(0, 12);
-      const { id: _stripped, ...rest } = anyData;
+    add(itemData: Omit<T, 'id'> & { id?: string }): string {
+      const anyData = itemData as Record<string, unknown>;
+      const id: string = (anyData.id as string | undefined) ?? crypto.randomUUID().slice(0, 12);
+      const { id: _id, ...rest } = anyData;
       ref.get(id).put(rest);
       itemsMap = { ...itemsMap, [id]: { id, data: rest as T } };
       notify();
       return id;
     },
 
-    update(id, data): void {
+    update(id, data: Partial<Omit<T, 'id'>>): void {
       const item = itemsMap[id];
       if (!item) return;
       const merged = { ...item.data, ...data } as T;
@@ -159,36 +159,60 @@ export function createCollection<
     // ---- reactive queries -------------------------------------------------
 
     query<R>(selector: (items: Array<CollectionItem<T>>) => R): CollectionQuery<R> {
-      let current: R = selector(Object.values(itemsMap));
       let querySubscribers: Array<(v: R) => void> = [];
+      let innerUnsub: Unsubscribe | null = null;
 
-      const innerUnsub = collectionRef.subscribe(() => {
-        current = selector(Object.values(itemsMap));
+      function recompute(): R {
+        return selector(Object.values(itemsMap));
+      }
+
+      function notifyQuerySubscribers(value: R): void {
         for (const cb of querySubscribers) {
-          try { cb(current); } catch (e) { console.error('[createCollection.query]', e); }
+          try { cb(value); } catch (e) { console.error('[createCollection.query]', e); }
         }
-      });
+      }
 
-      const queryRef: CollectionQuery<R> = {
+      function attachInner(): void {
+        if (innerUnsub) return;
+        // collectionRef.subscribe() fires the callback immediately with the
+        // current snapshot. We skip that first call because query subscribers
+        // receive their initial value via the explicit cb(recompute()) below.
+        let firstCall = true;
+        innerUnsub = collectionRef.subscribe(() => {
+          if (firstCall) { firstCall = false; return; }
+          notifyQuerySubscribers(recompute());
+        });
+      }
+
+      function detachInner(): void {
+        if (innerUnsub) {
+          innerUnsub();
+          innerUnsub = null;
+        }
+      }
+
+      return {
         get value(): R {
-          return current;
+          return recompute();
         },
 
         subscribe(cb): Unsubscribe {
+          attachInner();
           querySubscribers.push(cb);
-          cb(current);
+          cb(recompute());
           return () => {
             querySubscribers = querySubscribers.filter(s => s !== cb);
+            if (querySubscribers.length === 0) {
+              detachInner();
+            }
           };
         },
 
         destroy(): void {
-          innerUnsub();
+          detachInner();
           querySubscribers = [];
         },
       };
-
-      return queryRef;
     },
 
     // ---- Svelte store protocol (Svelte 4 compat) --------------------------

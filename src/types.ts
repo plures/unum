@@ -252,9 +252,9 @@ export interface CollectionRef<T = Record<string, any>> {
   // ---- CRUD mutations -----------------------------------------------------
 
   /** Add an item; accepts an optional `id` field. Returns the generated/provided ID */
-  add(data: T & { id?: string }): string;
+  add(data: Omit<T, 'id'> & { id?: string }): string;
   /** Merge `data` into an existing item */
-  update(id: string, data: Partial<T>): void;
+  update(id: string, data: Partial<Omit<T, 'id'>>): void;
   /** Remove an item by ID */
   remove(id: string): void;
   /** Retrieve a single item by ID, or `undefined` if not found */

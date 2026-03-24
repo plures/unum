@@ -244,6 +244,22 @@ describe('createCollection — query() ($derived reactive queries)', () => {
     col.destroy();
   });
 
+  it('query inner subscription is released when the last subscriber unsubscribes', () => {
+    // Simulates Svelte store auto-unsubscription: only the unsubscribe returned
+    // from query.subscribe() is called — destroy() is never called. The inner
+    // collection subscription must still be torn down to prevent leaks.
+    const col = createCollection('items');
+    const q = col.query(items => items);
+    let count = 0;
+    const unsub = q.subscribe(() => count++);
+    expect(count).toBe(1);
+    unsub(); // Svelte-style cleanup — no destroy()
+    col.add({ id: 'i1' });
+    expect(count).toBe(1); // inner sub detached — query no longer fires
+    q.destroy(); // safe to call even after inner sub was already detached
+    col.destroy();
+  });
+
   it('query can transform items to a computed value', () => {
     const col = createCollection<{ score: number }>('items');
     col.add({ id: 'a', score: 10 });
@@ -304,6 +320,18 @@ describe('createCollection — TypeScript generics', () => {
     expect(col.size).toBe(1);
 
     q.destroy();
+    col.destroy();
+  });
+
+  it('add() strips id from item.data — id is metadata only', () => {
+    interface User { name: string; email: string }
+    const col = createCollection<User>('users');
+    const id = col.add({ name: 'Alice', email: 'alice@example.com', id: 'alice' });
+    expect(id).toBe('alice');
+    const item = col.get('alice')!;
+    expect(item.data.name).toBe('Alice');
+    // id must not leak into item.data
+    expect((item.data as Record<string, unknown>).id).toBeUndefined();
     col.destroy();
   });
 });
