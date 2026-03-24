@@ -8,6 +8,7 @@
 export { initDb, getAdapter, getRoot, destroyDb, db } from './context.js';
 export { pluresData, pluresDerived, pluresBind } from './runes.js';
 export { PluresStore, createPluresStore } from './store.js';
+export { useGraph } from './graph.js';
 
 // Adapters
 export { createPluresDbAdapter } from './adapters/pluresdb.js';
@@ -22,4 +23,9 @@ export type {
   DataRef,
   PluresDataOptions,
   Unsubscribe,
+  GraphNode,
+  GraphEdge,
+  GraphState,
+  GraphQuery,
+  GraphRef,
 } from './types.js';

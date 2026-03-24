@@ -7,6 +7,170 @@
 /** Callback for data subscriptions */
 export type DataCallback = (data: any, key?: string) => void;
 
+// ---------------------------------------------------------------------------
+// Graph types
+// ---------------------------------------------------------------------------
+
+/**
+ * A node in the graph.
+ * `T` is the shape of the application data stored on the node.
+ */
+export interface GraphNode<T = Record<string, any>> {
+  /** Unique identifier for this node */
+  id: string;
+  /** Application data stored on this node */
+  data: T;
+}
+
+/**
+ * A directed edge in the graph.
+ * `T` is the shape of the application data stored on the edge.
+ */
+export interface GraphEdge<T = Record<string, any>> {
+  /** Unique identifier for this edge */
+  id: string;
+  /** ID of the source node */
+  source: string;
+  /** ID of the target node */
+  target: string;
+  /** Application data stored on this edge */
+  data: T;
+}
+
+/**
+ * Complete snapshot of the graph — used as the value emitted by subscribe().
+ */
+export interface GraphState<
+  N = Record<string, any>,
+  E = Record<string, any>,
+> {
+  /** Map of node ID → GraphNode */
+  nodes: Record<string, GraphNode<N>>;
+  /** Map of edge ID → GraphEdge */
+  edges: Record<string, GraphEdge<E>>;
+}
+
+/**
+ * Reactive graph query result.
+ *
+ * Implements the Svelte store protocol so it can be consumed directly with
+ * the `$store` auto-subscription syntax in Svelte 4, or wrapped in a
+ * `$derived` expression in Svelte 5.
+ *
+ * @example
+ * ```svelte
+ * <script>
+ *   const graph = useGraph('my-graph');
+ *   const activeNodes = graph.query((nodes) => nodes.filter(n => n.data.active));
+ *   // Svelte 4: use $activeNodes
+ *   // Svelte 5: $derived(activeNodes.value)
+ * </script>
+ * ```
+ */
+export interface GraphQuery<T> {
+  /** Current computed value */
+  readonly value: T;
+  /** Svelte store protocol */
+  subscribe(cb: (value: T) => void): Unsubscribe;
+  /** Remove this query's internal subscription and release memory */
+  destroy(): void;
+}
+
+/**
+ * Reactive graph reference returned by `useGraph()`.
+ *
+ * Implements the Svelte 4 store protocol (`.subscribe()`) for backward
+ * compatibility, and exposes getter-based properties that work naturally
+ * with Svelte 5 `$derived` expressions.
+ *
+ * @example
+ * ```svelte
+ * <!-- Svelte 5 runes usage -->
+ * <script>
+ *   import { useGraph } from '@plures/unum';
+ *
+ *   const graph = useGraph<{ label: string }, { weight: number }>('my-graph');
+ *
+ *   // Reactive query — re-evaluates whenever the graph changes
+ *   const heavy = graph.query((nodes, edges) =>
+ *     edges.filter(e => e.data.weight > 10)
+ *   );
+ *
+ *   // $effect for side-effect subscriptions
+ *   $effect(() => {
+ *     return graph.subscribe(state => {
+ *       console.log('Graph updated', state);
+ *     });
+ *   });
+ * </script>
+ * ```
+ */
+export interface GraphRef<
+  N = Record<string, any>,
+  E = Record<string, any>,
+> {
+  // ---- Reactive accessors (work with $derived in Svelte 5) ---------------
+
+  /** Current nodes as a flat array */
+  readonly nodes: Array<GraphNode<N>>;
+  /** Current edges as a flat array */
+  readonly edges: Array<GraphEdge<E>>;
+  /** Full graph state snapshot */
+  readonly state: GraphState<N, E>;
+
+  // ---- Node mutations ----------------------------------------------------
+
+  /** Add a node; returns the generated/provided ID */
+  addNode(data: N & { id?: string }): string;
+  /** Merge `data` into an existing node's data */
+  updateNode(id: string, data: Partial<N>): void;
+  /** Remove a node and all its incident edges */
+  removeNode(id: string): void;
+
+  // ---- Edge mutations ----------------------------------------------------
+
+  /** Add a directed edge from `source` to `target`; returns the generated ID */
+  addEdge(source: string, target: string, data?: Partial<E>): string;
+  /** Merge `data` into an existing edge's data */
+  updateEdge(id: string, data: Partial<E>): void;
+  /** Remove an edge */
+  removeEdge(id: string): void;
+
+  // ---- Reactive queries --------------------------------------------------
+
+  /**
+   * Create a derived reactive query.
+   *
+   * The selector is re-evaluated every time the graph changes and the result
+   * is made available via `.value` and the store `.subscribe()` protocol.
+   *
+   * Designed for use with Svelte 5's `$derived`:
+   * ```ts
+   * const activeNodes = graph.query(nodes => nodes.filter(n => n.data.active));
+   * // In Svelte 5: $derived(activeNodes.value)
+   * // In Svelte 4: $activeNodes
+   * ```
+   */
+  query<T>(
+    selector: (nodes: Array<GraphNode<N>>, edges: Array<GraphEdge<E>>) => T,
+  ): GraphQuery<T>;
+
+  /**
+   * Find the shortest path between two nodes using breadth-first search.
+   * Returns an ordered array of nodes from `fromId` to `toId`, or an empty
+   * array if no path exists.
+   */
+  findPath(fromId: string, toId: string): Array<GraphNode<N>>;
+
+  // ---- Svelte store protocol (Svelte 4 backward compat) ------------------
+
+  /** Subscribe to full graph state changes — Svelte 4 store protocol */
+  subscribe(cb: (state: GraphState<N, E>) => void): Unsubscribe;
+
+  /** Tear down all DB subscriptions and release memory */
+  destroy(): void;
+}
+
 /** Unsubscribe function returned by on() */
 export type Unsubscribe = () => void;
 
