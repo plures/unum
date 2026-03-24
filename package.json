@@ -50,10 +50,14 @@
   },
   "peerDependencies": {
     "@plures/praxis": "^1.4.0",
+    "hyperswarm": "^4.0.0",
     "svelte": "^4.0.0 || ^5.0.0"
   },
   "peerDependenciesMeta": {
     "@plures/praxis": {
+      "optional": true
+    },
+    "hyperswarm": {
       "optional": true
     }
   },

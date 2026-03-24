@@ -15,6 +15,7 @@ export { createCollection } from './collection.js';
 export { createPluresDbAdapter } from './adapters/pluresdb.js';
 export { createMemoryAdapter } from './adapters/memory.js';
 export { createGunAdapter } from './adapters/gun.js';
+export { createHyperswarmAdapter } from './adapters/hyperswarm.js';
 
 // Types
 export type {
