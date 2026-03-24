@@ -1,16 +1,18 @@
 /**
  * Tests for the DbAdapter abstraction layer:
- *   - src/adapters/pluresdb.ts  (createPluresDbAdapter)
- *   - src/adapters/gun.ts       (createGunAdapter)
- *   - src/adapters/memory.ts    (createMemoryAdapter)
- *   - src/context.ts            (initDb / destroyDb)
- *   - src/runes.ts              (subscription-based derived / bind)
+ *   - src/adapters/pluresdb.ts    (createPluresDbAdapter)
+ *   - src/adapters/gun.ts         (createGunAdapter)
+ *   - src/adapters/memory.ts      (createMemoryAdapter)
+ *   - src/adapters/hyperswarm.ts  (createHyperswarmAdapter)
+ *   - src/context.ts              (initDb / destroyDb)
+ *   - src/runes.ts                (subscription-based derived / bind)
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { initDb, destroyDb, getRoot } from '../src/context';
 import { createMemoryAdapter } from '../src/adapters/memory';
 import { createPluresDbAdapter } from '../src/adapters/pluresdb';
 import { createGunAdapter } from '../src/adapters/gun';
+import { createHyperswarmAdapter } from '../src/adapters/hyperswarm';
 import { pluresData, pluresDerived, pluresBind } from '../src/runes';
 
 // ---------------------------------------------------------------------------
@@ -274,5 +276,217 @@ describe('memory adapter — event bubbling', () => {
 
     expect(events.length).toBeGreaterThan(0);
     destroyDb();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// createHyperswarmAdapter tests
+// ---------------------------------------------------------------------------
+
+/** Build a minimal mock Hyperswarm instance + helpers to simulate connections. */
+function makeMockSwarm() {
+  const connectionHandlers: Array<(conn: any) => void> = [];
+
+  const swarm = {
+    on(event: string, handler: (...args: any[]) => void) {
+      if (event === 'connection') connectionHandlers.push(handler as (conn: any) => void);
+    },
+    destroy: vi.fn(),
+  };
+
+  /** Simulate two peers connecting to each other. Returns [connA, connB]. */
+  function connect() {
+    const aHandlers: Record<string, Array<(data?: any) => void>> = {};
+    const bHandlers: Record<string, Array<(data?: any) => void>> = {};
+
+    const connA = {
+      on(event: string, cb: (data?: any) => void) {
+        (aHandlers[event] ??= []).push(cb);
+      },
+      write(data: any) {
+        // connA writes → connB receives
+        for (const cb of bHandlers['data'] ?? []) cb(data);
+      },
+    };
+
+    const connB = {
+      on(event: string, cb: (data?: any) => void) {
+        (bHandlers[event] ??= []).push(cb);
+      },
+      write(data: any) {
+        // connB writes → connA receives
+        for (const cb of aHandlers['data'] ?? []) cb(data);
+      },
+    };
+
+    // Fire the 'connection' event on both swarms
+    for (const h of connectionHandlers) h(connA);
+
+    return { connA, connB, aHandlers, bHandlers };
+  }
+
+  return { swarm, connect };
+}
+
+describe('createHyperswarmAdapter', () => {
+  it('returns a valid DbAdapter with root()', () => {
+    const inner = createMemoryAdapter();
+    const { swarm } = makeMockSwarm();
+    const adapter = createHyperswarmAdapter(swarm, inner);
+
+    expect(adapter).toBeDefined();
+    expect(typeof adapter.root).toBe('function');
+
+    const root = adapter.root();
+    expect(typeof root.get).toBe('function');
+    expect(typeof root.put).toBe('function');
+    expect(typeof root.on).toBe('function');
+
+    adapter.destroy();
+  });
+
+  it('delegates reads and writes to the inner adapter', () => {
+    const inner = createMemoryAdapter();
+    const { swarm } = makeMockSwarm();
+    const adapter = createHyperswarmAdapter(swarm, inner);
+
+    const seen: any[] = [];
+    adapter.root().get('x').on((data: any) => seen.push(data));
+    adapter.root().get('x').put(42);
+
+    expect(seen).toContain(42);
+    adapter.destroy();
+  });
+
+  it('broadcasts put() to connected peers', () => {
+    const inner = createMemoryAdapter();
+    const { swarm, connect } = makeMockSwarm();
+    const adapter = createHyperswarmAdapter(swarm, inner);
+
+    const { connB } = connect();
+
+    // Capture what connB receives
+    const received: any[] = [];
+    connB.on('data', (data: any) => received.push(data));
+
+    adapter.root().get('nodes').get('n1').put({ label: 'hello' });
+
+    expect(received).toHaveLength(1);
+    const msg = JSON.parse(new TextDecoder().decode(received[0]));
+    expect(msg.type).toBe('put');
+    expect(msg.path).toEqual(['nodes', 'n1']);
+    expect(msg.data).toEqual({ label: 'hello' });
+
+    adapter.destroy();
+  });
+
+  it('applies incoming peer messages to the local store', () => {
+    const innerA = createMemoryAdapter();
+    const { swarm: swarmA, connect: connectA } = makeMockSwarm();
+    const adapterA = createHyperswarmAdapter(swarmA, innerA);
+
+    const innerB = createMemoryAdapter();
+    const { swarm: swarmB } = makeMockSwarm();
+    const adapterB = createHyperswarmAdapter(swarmB, innerB);
+
+    // Connect A→B: connA is wired into swarmA's adapter
+    const { connB } = connectA();
+
+    // Wire connB into adapterB by simulating swarmB's connection event
+    // For this test we directly simulate a data event on adapterA's connection
+    // by having connB write a sync message that adapterA will receive.
+    const msg = JSON.stringify({
+      type: 'put',
+      path: ['graph', 'nodes', 'remote1'],
+      data: { label: 'from peer' },
+    });
+    connB.write(new TextEncoder().encode(msg));
+
+    // adapterA's inner store should now have the remote write
+    const seen: any[] = [];
+    adapterA.root().get('graph').get('nodes').get('remote1').once((data: any) => seen.push(data));
+    expect(seen[0]).toEqual({ label: 'from peer' });
+
+    adapterA.destroy();
+    adapterB.destroy();
+  });
+
+  it('does NOT echo incoming peer writes back to other peers', () => {
+    const inner = createMemoryAdapter();
+    const { swarm, connect } = makeMockSwarm();
+    const adapter = createHyperswarmAdapter(swarm, inner);
+
+    const { connB } = connect();
+
+    const echoed: any[] = [];
+    connB.on('data', (data: any) => echoed.push(data));
+
+    // Simulate a message arriving from connB (the peer) into the adapter
+    const inbound = JSON.stringify({
+      type: 'put',
+      path: ['notes', 'n1'],
+      data: 'peer content',
+    });
+    // connB writes to connA (which is adapterA's connection)
+    connB.write(new TextEncoder().encode(inbound));
+
+    // connB should NOT receive an echo of its own write
+    expect(echoed).toHaveLength(0);
+
+    adapter.destroy();
+  });
+
+  it('set() broadcasts with an auto-generated child path', () => {
+    const inner = createMemoryAdapter();
+    const { swarm, connect } = makeMockSwarm();
+    const adapter = createHyperswarmAdapter(swarm, inner);
+
+    const { connB } = connect();
+
+    const received: any[] = [];
+    connB.on('data', (data: any) => received.push(data));
+
+    adapter.root().get('items').set({ title: 'task' });
+
+    expect(received).toHaveLength(1);
+    const msg = JSON.parse(new TextDecoder().decode(received[0]));
+    expect(msg.type).toBe('put');
+    expect(msg.path[0]).toBe('items');
+    expect(msg.path).toHaveLength(2); // ['items', '<generated-id>']
+    expect(msg.data).toEqual({ title: 'task' });
+
+    adapter.destroy();
+  });
+
+  it('destroy() calls swarm.destroy() and inner adapter destroy()', () => {
+    const inner = createMemoryAdapter();
+    const destroySpy = vi.spyOn(inner, 'destroy');
+    const { swarm } = makeMockSwarm();
+    const adapter = createHyperswarmAdapter(swarm, inner);
+
+    adapter.destroy();
+
+    expect(swarm.destroy).toHaveBeenCalled();
+    expect(destroySpy).toHaveBeenCalled();
+  });
+
+  it('handles malformed peer messages gracefully', () => {
+    const inner = createMemoryAdapter();
+    const { swarm, connect } = makeMockSwarm();
+    const adapter = createHyperswarmAdapter(swarm, inner);
+
+    const { connB } = connect();
+
+    // Send garbage
+    expect(() => {
+      connB.write(new TextEncoder().encode('not json at all'));
+    }).not.toThrow();
+
+    // Send valid JSON but wrong shape
+    expect(() => {
+      connB.write(new TextEncoder().encode(JSON.stringify({ type: 'unknown' })));
+    }).not.toThrow();
+
+    adapter.destroy();
   });
 });
