@@ -133,7 +133,21 @@ export function pluresData<T extends Record<string, any> = Record<string, any>>(
 }
 
 /**
- * Derived view — subscription-based, no polling.
+ * Create a derived view from an existing `DataRef`.
+ *
+ * Re-evaluates `transform` each time the source changes.  The result is
+ * exposed as a plain `.value` getter — no polling, no extra subscriptions.
+ *
+ * @param source    - A `DataRef` returned by `pluresData()`.
+ * @param transform - Pure function that maps the source item list to a new array.
+ *
+ * @example
+ * ```ts
+ * const todos = pluresData('todos');
+ * const pending = pluresDerived(todos, items => items.filter(i => !i.done));
+ * console.log(pending.value);
+ * pending.destroy();
+ * ```
  */
 export function pluresDerived<T = any>(
   source: DataRef,
@@ -150,7 +164,24 @@ export function pluresDerived<T = any>(
 }
 
 /**
- * Two-way binding helper for form inputs.
+ * Create a two-way binding helper for a single field in a `DataRef`.
+ *
+ * The returned object exposes a `value` getter/setter that reads from and
+ * writes to the underlying `DataRef`.  Designed for use with Svelte 5's
+ * `bind:value` on native inputs.
+ *
+ * @param source - A `DataRef` returned by `pluresData()`.
+ * @param field  - The key on the data object to bind (e.g. `'name'`).
+ *
+ * @example
+ * ```svelte
+ * <script>
+ *   import { pluresData, pluresBind } from '@plures/unum';
+ *   const profile = pluresData('profile', 'me');
+ *   const name = pluresBind(profile, 'name');
+ * </script>
+ * <input bind:value={name.value} />
+ * ```
  */
 export function pluresBind(source: DataRef, field: string) {
   let _value = source.state?.[field] ?? '';
