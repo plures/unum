@@ -16,6 +16,25 @@ function createMemNode(): MemNode {
   return { data: undefined, children: new Map(), listeners: new Set(), mapListeners: new Set() };
 }
 
+/**
+ * Create a fully in-memory `DbAdapter`.
+ *
+ * The in-memory adapter stores all data in plain JavaScript `Map`s and
+ * `Set`s.  It supports the full `ChainNode` API (`get`, `put`, `set`, `on`,
+ * `once`, `map`, `off`) and fires listeners synchronously on every write.
+ *
+ * **Use cases**
+ * - Unit tests — no real database needed.
+ * - Server-side rendering — safe to use in Node.js / Deno without persistence.
+ * - The `inner` adapter for `createHyperswarmAdapter()`.
+ *
+ * @example
+ * ```ts
+ * import { initDb, createMemoryAdapter } from '@plures/unum';
+ *
+ * initDb(createMemoryAdapter());
+ * ```
+ */
 export function createMemoryAdapter(): DbAdapter {
   const root = createMemNode();
 
