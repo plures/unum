@@ -12,7 +12,7 @@ describe('memory adapter', () => {
   it('put and get via once', () => {
     const root = getRoot();
     root.get('test').put({ name: 'hello' });
-    let result: any;
+    let result: unknown;
     root.get('test').once((data) => { result = data; });
     expect(result).toEqual({ name: 'hello' });
   });
@@ -20,14 +20,14 @@ describe('memory adapter', () => {
   it('on fires for existing data', () => {
     const root = getRoot();
     root.get('x').put({ v: 1 });
-    let fired: any;
+    let fired: unknown;
     root.get('x').on((data) => { fired = data; });
     expect(fired).toEqual({ v: 1 });
   });
 
   it('on fires for new data', () => {
     const root = getRoot();
-    const values: any[] = [];
+    const values: unknown[] = [];
     root.get('y').on((data) => { values.push(data); });
     root.get('y').put({ v: 2 });
     expect(values).toEqual([{ v: 2 }]);
@@ -37,7 +37,7 @@ describe('memory adapter', () => {
     const root = getRoot();
     root.get('items').get('a').put({ text: 'A' });
     root.get('items').get('b').put({ text: 'B' });
-    const entries: [string, any][] = [];
+    const entries: [string, unknown][] = [];
     root.get('items').map().on((data, key) => {
       entries.push([key!, data]);
     });
@@ -78,7 +78,7 @@ describe('pluresData', () => {
     todos.add({ text: 'Walk dog' });
     const list = todos.list();
     expect(list).toHaveLength(2);
-    expect(list.map((t: any) => t.text).sort()).toEqual(['Buy milk', 'Walk dog']);
+    expect(list.map((t) => (t as { text: string }).text).sort()).toEqual(['Buy milk', 'Walk dog']);
     todos.destroy();
   });
 
@@ -86,7 +86,7 @@ describe('pluresData', () => {
     const todos = pluresData('todos');
     todos.add({ text: 'Test', id: 'abc' });
     todos.update('abc', { text: 'Updated' });
-    const item = todos.state['abc'];
+    const item = todos.state['abc'] as { text: string };
     expect(item.text).toBe('Updated');
     todos.destroy();
   });
@@ -103,10 +103,10 @@ describe('pluresData', () => {
   it('subscribe fires with current state', () => {
     const todos = pluresData('todos');
     todos.add({ text: 'X', id: 'x1' });
-    let received: any;
+    let received: unknown;
     const unsub = todos.subscribe((s) => { received = s; });
     expect(received).toBeDefined();
-    expect(received['x1']).toBeDefined();
+    expect((received as Record<string, unknown>)['x1']).toBeDefined();
     unsub();
     todos.destroy();
   });
@@ -130,16 +130,16 @@ describe('pluresDerived', () => {
     const todos = pluresData('dtodos');
     todos.add({ text: 'A', done: true, id: 'd1' });
     todos.add({ text: 'B', done: false, id: 'd2' });
-    const done = pluresDerived(todos, (items) => items.filter((i: any) => i.done));
+    const done = pluresDerived(todos, (items) => items.filter((i) => (i as { done?: boolean }).done));
     expect(done.value).toHaveLength(1);
-    expect(done.value[0].text).toBe('A');
+    expect((done.value[0] as { text: string }).text).toBe('A');
     done.destroy();
     todos.destroy();
   });
 
   it('updates when source changes', () => {
     const todos = pluresData('dtodos2');
-    const done = pluresDerived(todos, (items) => items.filter((i: any) => i.done));
+    const done = pluresDerived(todos, (items) => items.filter((i) => (i as { done?: boolean }).done));
     expect(done.value).toHaveLength(0);
     todos.add({ text: 'C', done: true, id: 'e1' });
     expect(done.value).toHaveLength(1);

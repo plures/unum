@@ -26,7 +26,7 @@ import type { DataRef, DataCallback, Unsubscribe } from './types.js';
  * {/each}
  * ```
  */
-export function pluresData<T extends Record<string, any> = Record<string, unknown>>(
+export function pluresData<T extends Record<string, unknown> = Record<string, unknown>>(
   path: string,
   id?: string | null,
 ): DataRef<T> {

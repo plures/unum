@@ -8,6 +8,7 @@
  *   - src/runes.ts                (subscription-based derived / bind)
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { DbAdapter, ChainNode } from '../src/types';
 import { initDb, destroyDb, getRoot } from '../src/context';
 import { createMemoryAdapter } from '../src/adapters/memory';
 import { createPluresDbAdapter } from '../src/adapters/pluresdb';
@@ -163,7 +164,7 @@ describe('pluresDerived (subscription-based)', () => {
   it('returns an initial derived value', () => {
     const todos = pluresData('todos');
     todos.add({ text: 'A', done: false, id: 'a1' });
-    const active = pluresDerived(todos, (items) => items.filter((i: any) => !i.done));
+    const active = pluresDerived(todos, (items) => items.filter((i) => !(i as { done?: boolean }).done));
     expect(active.value).toHaveLength(1);
     active.destroy();
     todos.destroy();
@@ -171,7 +172,7 @@ describe('pluresDerived (subscription-based)', () => {
 
   it('updates reactively WITHOUT setInterval', () => {
     const todos = pluresData('todos');
-    const done = pluresDerived(todos, (items) => items.filter((i: any) => i.done));
+    const done = pluresDerived(todos, (items) => items.filter((i) => (i as { done?: boolean }).done));
     expect(done.value).toHaveLength(0);
     todos.add({ text: 'Done', done: true });
     // Advance fake timers — if polling were used this would be needed
@@ -210,7 +211,7 @@ describe('pluresBind (subscription-based)', () => {
     const nameBinding = pluresBind(profile, 'name');
     nameBinding.value = 'Bob';
     expect(nameBinding.value).toBe('Bob');
-    expect((profile.state as any).name).toBe('Bob');
+    expect((profile.state as Record<string, unknown>)['name']).toBe('Bob');
     nameBinding.destroy();
     profile.destroy();
   });
@@ -228,8 +229,8 @@ describe('memory adapter — event bubbling', () => {
   it('root.on() receives child writes with full path as key', () => {
     initDb(createMemoryAdapter());
     const root = getRoot();
-    const events: Array<{ data: any; key: string }> = [];
-    root.on((data: any, key: string) => events.push({ data, key }));
+    const events: Array<{ data: unknown; key: string }> = [];
+    root.on((data: unknown, key: string) => events.push({ data, key }));
 
     root.get('sprint').get('current').put({ name: 'Sprint 1' });
     root.get('notes').get('content').put('hello world');
@@ -244,7 +245,7 @@ describe('memory adapter — event bubbling', () => {
     initDb(createMemoryAdapter());
     const root = getRoot();
     const events: Array<{ key: string }> = [];
-    root.on((_data: any, key: string) => events.push({ key }));
+    root.on((_data: unknown, key: string) => events.push({ key }));
 
     root.get('a').get('b').get('c').get('d').put(42);
 
@@ -257,7 +258,7 @@ describe('memory adapter — event bubbling', () => {
     initDb(createMemoryAdapter());
     const root = getRoot();
     const events: Array<{ key: string }> = [];
-    root.get('sprint').on((_data: any, key: string) => events.push({ key }));
+    root.get('sprint').on((_data: unknown, key: string) => events.push({ key }));
 
     root.get('sprint').get('current').put({ name: 'test' });
 
@@ -270,7 +271,7 @@ describe('memory adapter — event bubbling', () => {
     initDb(createMemoryAdapter());
     const root = getRoot();
     const events: Array<{ key: string }> = [];
-    root.map().on((_data: any, key: string) => events.push({ key }));
+    root.map().on((_data: unknown, key: string) => events.push({ key }));
 
     root.get('sprint').get('current').put({ name: 'test' });
 
@@ -285,35 +286,43 @@ describe('memory adapter — event bubbling', () => {
 
 /** Build a minimal mock Hyperswarm instance + helpers to simulate connections. */
 function makeMockSwarm() {
-  const connectionHandlers: Array<(conn: any) => void> = [];
+  type MockConnHandler = (conn: MockConn) => void;
+  type DataHandler = (data: Uint8Array) => void;
+
+  interface MockConn {
+    on(event: string, cb: DataHandler): void;
+    write(data: Uint8Array): void;
+  }
+
+  const connectionHandlers: MockConnHandler[] = [];
 
   const swarm = {
-    on(event: string, handler: (...args: any[]) => void) {
-      if (event === 'connection') connectionHandlers.push(handler as (conn: any) => void);
+    on(event: string, handler: MockConnHandler) {
+      if (event === 'connection') connectionHandlers.push(handler);
     },
     destroy: vi.fn(),
   };
 
   /** Simulate two peers connecting to each other. Returns [connA, connB]. */
   function connect() {
-    const aHandlers: Record<string, Array<(data?: any) => void>> = {};
-    const bHandlers: Record<string, Array<(data?: any) => void>> = {};
+    const aHandlers: Record<string, DataHandler[]> = {};
+    const bHandlers: Record<string, DataHandler[]> = {};
 
-    const connA = {
-      on(event: string, cb: (data?: any) => void) {
+    const connA: MockConn = {
+      on(event: string, cb: DataHandler) {
         (aHandlers[event] ??= []).push(cb);
       },
-      write(data: any) {
+      write(data: Uint8Array) {
         // connA writes → connB receives
         for (const cb of bHandlers['data'] ?? []) cb(data);
       },
     };
 
-    const connB = {
-      on(event: string, cb: (data?: any) => void) {
+    const connB: MockConn = {
+      on(event: string, cb: DataHandler) {
         (bHandlers[event] ??= []).push(cb);
       },
-      write(data: any) {
+      write(data: Uint8Array) {
         // connB writes → connA receives
         for (const cb of aHandlers['data'] ?? []) cb(data);
       },
@@ -350,8 +359,8 @@ describe('createHyperswarmAdapter', () => {
     const { swarm } = makeMockSwarm();
     const adapter = createHyperswarmAdapter(swarm, inner);
 
-    const seen: any[] = [];
-    adapter.root().get('x').on((data: any) => seen.push(data));
+    const seen: unknown[] = [];
+    adapter.root().get('x').on((data: unknown) => seen.push(data));
     adapter.root().get('x').put(42);
 
     expect(seen).toContain(42);
@@ -366,8 +375,8 @@ describe('createHyperswarmAdapter', () => {
     const { connB } = connect();
 
     // Capture what connB receives
-    const received: any[] = [];
-    connB.on('data', (data: any) => received.push(data));
+    const received: Uint8Array[] = [];
+    connB.on('data', (data: Uint8Array) => received.push(data));
 
     adapter.root().get('nodes').get('n1').put({ label: 'hello' });
 
@@ -403,8 +412,8 @@ describe('createHyperswarmAdapter', () => {
     connB.write(new TextEncoder().encode(msg));
 
     // adapterA's inner store should now have the remote write
-    const seen: any[] = [];
-    adapterA.root().get('graph').get('nodes').get('remote1').once((data: any) => seen.push(data));
+    const seen: unknown[] = [];
+    adapterA.root().get('graph').get('nodes').get('remote1').once((data: unknown) => seen.push(data));
     expect(seen[0]).toEqual({ label: 'from peer' });
 
     adapterA.destroy();
@@ -418,8 +427,8 @@ describe('createHyperswarmAdapter', () => {
 
     const { connB } = connect();
 
-    const echoed: any[] = [];
-    connB.on('data', (data: any) => echoed.push(data));
+    const echoed: Uint8Array[] = [];
+    connB.on('data', (data: Uint8Array) => echoed.push(data));
 
     // Simulate a message arriving from connB (the peer) into the adapter
     const inbound = JSON.stringify({
@@ -443,8 +452,8 @@ describe('createHyperswarmAdapter', () => {
 
     const { connB } = connect();
 
-    const received: any[] = [];
-    connB.on('data', (data: any) => received.push(data));
+    const received: Uint8Array[] = [];
+    connB.on('data', (data: Uint8Array) => received.push(data));
 
     adapter.root().get('items').set({ title: 'task' });
 

@@ -16,6 +16,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { initDb, destroyDb } from '../src/context';
 import { createMemoryAdapter } from '../src/adapters/memory';
 import { useGraph } from '../src/graph';
+import type { GraphState } from '../src/types';
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -174,7 +175,7 @@ describe('useGraph — subscribe (Svelte store protocol)', () => {
 
   it('subscribe() fires immediately with current state', () => {
     const graph = useGraph('g');
-    let received: any = null;
+    let received: GraphState | null = null;
     const unsub = graph.subscribe(s => { received = s; });
     expect(received).toBeDefined();
     expect(received.nodes).toBeDefined();
@@ -185,7 +186,7 @@ describe('useGraph — subscribe (Svelte store protocol)', () => {
 
   it('subscribe() fires on node addition', () => {
     const graph = useGraph('g');
-    const snapshots: any[] = [];
+    const snapshots: GraphState[] = [];
     const unsub = graph.subscribe(s => snapshots.push(s));
     graph.addNode({ id: 'n1', label: 'X' });
     expect(snapshots.length).toBeGreaterThanOrEqual(2);
@@ -247,7 +248,7 @@ describe('useGraph — query() ($derived reactive queries)', () => {
   it('query.subscribe() fires immediately and on changes', () => {
     const graph = useGraph<{ active: boolean }>('g');
     const q = graph.query(nodes => nodes.filter(n => n.data.active));
-    const snapshots: any[] = [];
+    const snapshots: Array<Array<{ id: string; data: { active: boolean } }>> = [];
     const unsub = q.subscribe(v => snapshots.push(v));
     expect(snapshots).toHaveLength(1); // immediate
     graph.addNode({ id: 'n1', active: true });

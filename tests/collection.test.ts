@@ -122,7 +122,7 @@ describe('createCollection — subscribe (Svelte store protocol)', () => {
 
   it('subscribe() fires immediately with current items', () => {
     const col = createCollection('items');
-    let received: any = null;
+    let received: unknown = null;
     const unsub = col.subscribe(items => { received = items; });
     expect(received).toBeDefined();
     expect(Array.isArray(received)).toBe(true);
@@ -132,12 +132,12 @@ describe('createCollection — subscribe (Svelte store protocol)', () => {
 
   it('subscribe() fires on item addition', () => {
     const col = createCollection('items');
-    const snapshots: any[][] = [];
+    const snapshots: Array<Array<{ id: string; data: Record<string, unknown> }>> = [];
     const unsub = col.subscribe(items => snapshots.push(items));
     col.add({ id: 'i1', label: 'X' });
     expect(snapshots.length).toBeGreaterThanOrEqual(2);
     const last = snapshots[snapshots.length - 1];
-    expect(last.some((i: any) => i.id === 'i1')).toBe(true);
+    expect(last.some((i) => i.id === 'i1')).toBe(true);
     unsub();
     col.destroy();
   });
@@ -145,11 +145,11 @@ describe('createCollection — subscribe (Svelte store protocol)', () => {
   it('subscribe() fires on item update', () => {
     const col = createCollection<{ v: number }>('items');
     col.add({ id: 'i1', v: 1 });
-    const snapshots: any[][] = [];
+    const snapshots: Array<Array<{ id: string; data: { v: number } }>> = [];
     const unsub = col.subscribe(items => snapshots.push(items));
     col.update('i1', { v: 99 });
     const last = snapshots[snapshots.length - 1];
-    expect(last.find((i: any) => i.id === 'i1').data.v).toBe(99);
+    expect(last.find((i) => i.id === 'i1')!.data.v).toBe(99);
     unsub();
     col.destroy();
   });
@@ -157,11 +157,11 @@ describe('createCollection — subscribe (Svelte store protocol)', () => {
   it('subscribe() fires on item removal', () => {
     const col = createCollection('items');
     col.add({ id: 'i1' });
-    const snapshots: any[][] = [];
+    const snapshots: Array<Array<{ id: string; data: Record<string, unknown> }>> = [];
     const unsub = col.subscribe(items => snapshots.push(items));
     col.remove('i1');
     const last = snapshots[snapshots.length - 1];
-    expect(last.some((i: any) => i.id === 'i1')).toBe(false);
+    expect(last.some((i) => i.id === 'i1')).toBe(false);
     unsub();
     col.destroy();
   });
@@ -221,7 +221,7 @@ describe('createCollection — query() ($derived reactive queries)', () => {
   it('query.subscribe() fires immediately and on changes', () => {
     const col = createCollection<{ active: boolean }>('items');
     const q = col.query(items => items.filter(i => i.data.active));
-    const snapshots: any[][] = [];
+    const snapshots: Array<Array<{ id: string; data: { active: boolean } }>> = [];
     const unsub = q.subscribe(v => snapshots.push(v));
     expect(snapshots).toHaveLength(1); // immediate call
     col.add({ id: 'i1', active: true });

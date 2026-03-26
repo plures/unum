@@ -72,7 +72,7 @@ import type {
  * ```
  */
 export function createCollection<
-  T extends Record<string, any> = Record<string, unknown>,
+  T extends Record<string, unknown> = Record<string, unknown>,
 >(path: string): CollectionRef<T> {
   let itemsMap: Record<string, CollectionItem<T>> = {};
   let collectionSubscribers: Array<(items: Array<CollectionItem<T>>) => void> = [];
