@@ -8,9 +8,24 @@
 import type { ChainNode, DataCallback, DbAdapter, Unsubscribe } from '../types.js';
 
 /**
- * Wrap a PluresDB/Gun instance as a DbAdapter.
+ * Wrap a PluresDB or Gun instance as a `DbAdapter`.
  *
- * @param db - A PluresDB or Gun instance (anything with .get/.put/.on/.once/.map)
+ * PluresDB exposes a Gun-compatible chain API (`get`, `put`, `on`, `once`,
+ * `map`, `off`).  This adapter normalises that API into the unum `ChainNode`
+ * interface so you can pass any PluresDB or Gun instance to `initDb()`.
+ *
+ * @param db - A PluresDB or Gun instance (anything with `.get`, `.put`, `.on`,
+ *             `.once`, `.map`, and `.off` methods).
+ * @returns A `DbAdapter` wrapping the given database instance.
+ *
+ * @example
+ * ```ts
+ * import PluresDB from 'pluresdb';
+ * import { initDb, createPluresDbAdapter } from '@plures/unum';
+ *
+ * const db = new PluresDB({ localStorage: true });
+ * initDb(createPluresDbAdapter(db));
+ * ```
  */
 export function createPluresDbAdapter(db: any): DbAdapter {
   function wrapChain(chain: any): ChainNode {

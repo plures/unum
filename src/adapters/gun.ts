@@ -19,13 +19,24 @@
 import type { ChainNode, DataCallback, DbAdapter, Unsubscribe } from '../types.js';
 
 /**
- * Wrap a Gun.js instance as a DbAdapter.
+ * Wrap a Gun.js instance as a `DbAdapter`.
  *
  * Gun already exposes `get`, `put`, `on`, `once`, `off`, and `map` — the
  * same chain API modelled by `ChainNode` — so this is a lightweight typed
  * façade with no runtime overhead.
  *
  * @param gun - A Gun.js instance (from the `gun` npm package).
+ * @returns A `DbAdapter` wrapping the given Gun instance.
+ *
+ * @example
+ * ```ts
+ * import Gun from 'gun';
+ * import { initDb } from '@plures/unum';
+ * import { createGunAdapter } from '@plures/unum/adapters';
+ *
+ * const gun = Gun({ peers: ['http://localhost:8765/gun'] });
+ * initDb(createGunAdapter(gun));
+ * ```
  */
 export function createGunAdapter(gun: any): DbAdapter {
   function wrapChain(chain: any): ChainNode {

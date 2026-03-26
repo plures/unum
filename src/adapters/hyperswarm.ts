@@ -54,6 +54,7 @@ interface SyncMessage {
  * @param inner - The underlying `DbAdapter` used for local storage.
  *               Typically `createMemoryAdapter()` for in-process graphs or
  *               `createPluresDbAdapter(db)` when persisting locally.
+ * @returns A `DbAdapter` that transparently syncs all writes to connected peers.
  */
 export function createHyperswarmAdapter(swarm: any, inner: DbAdapter): DbAdapter {
   /** Currently open peer connections. */
