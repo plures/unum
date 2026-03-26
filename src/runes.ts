@@ -6,7 +6,7 @@
  */
 
 import { getRoot } from './context.js';
-import type { DataRef, DataCallback, Unsubscribe } from './types.js';
+import type { DataRef, Unsubscribe } from './types.js';
 
 /**
  * Create a reactive binding to a PluresDB path.

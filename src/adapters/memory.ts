@@ -55,14 +55,6 @@ export function createMemoryAdapter(): DbAdapter {
     }
   }
 
-  function notifyMap(parent: MemNode) {
-    for (const [key, child] of parent.children) {
-      for (const cb of parent.mapListeners) {
-        try { cb(child.data, key); } catch (e) { console.error('[unum/memory]', e); }
-      }
-    }
-  }
-
   function makeChain(path: string[], isMap = false): ChainNode {
     return {
       get(key: string) { return makeChain([...path, key]); },
