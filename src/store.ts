@@ -89,14 +89,23 @@ export class PluresStore<T = unknown> {
  * Factory helper — creates a {@link PluresStore} for a given `path`.
  *
  * Prefer this over the constructor when you want to infer types without
- * explicitly calling `new`:
- *
- * ```ts
- * const theme = createPluresStore<'light' | 'dark'>('settings/theme', 'light');
- * ```
+ * explicitly calling `new`.
  *
  * @param path         - Path in PluresDB to bind to.
  * @param initialValue - Optional initial value used before the first DB read.
+ * @returns A new `PluresStore` bound to `path`.
+ *
+ * @example
+ * ```ts
+ * import { initDb, createMemoryAdapter, createPluresStore } from '@plures/unum';
+ *
+ * initDb(createMemoryAdapter());
+ *
+ * const theme = createPluresStore<'light' | 'dark'>('settings/theme', 'light');
+ * theme.set('dark');
+ * theme.update(t => t === 'dark' ? 'light' : 'dark');
+ * theme.destroy();
+ * ```
  */
 export function createPluresStore<T = unknown>(path: string, initialValue?: T): PluresStore<T> {
   return new PluresStore(path, initialValue);

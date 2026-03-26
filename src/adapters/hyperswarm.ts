@@ -74,6 +74,21 @@ export interface HyperswarmLike {
  *               Typically `createMemoryAdapter()` for in-process graphs or
  *               `createPluresDbAdapter(db)` when persisting locally.
  * @returns A `DbAdapter` that transparently syncs all writes to connected peers.
+ *
+ * @example
+ * ```ts
+ * import Hyperswarm from 'hyperswarm';
+ * import { createHash } from 'node:crypto';
+ * import { initDb, createMemoryAdapter } from '@plures/unum';
+ * import { createHyperswarmAdapter } from '@plures/unum/adapters';
+ *
+ * const swarm = new Hyperswarm();
+ * const topic = createHash('sha256').update('my-graph-topic').digest();
+ * swarm.join(topic);
+ *
+ * const inner = createMemoryAdapter();
+ * initDb(createHyperswarmAdapter(swarm, inner));
+ * ```
  */
 export function createHyperswarmAdapter(swarm: HyperswarmLike, inner: DbAdapter): DbAdapter {
   /** Currently open peer connections. */

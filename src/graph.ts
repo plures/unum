@@ -46,8 +46,9 @@ function toEdge<E>(id: string, raw: unknown): GraphEdge<E> {
  * Create a reactive graph binding backed by PluresDB.
  *
  * @param path - Base path in the DB (e.g. `'my-graph'`).
+ * @returns A {@link GraphRef} with reactive `nodes`, `edges`, CRUD methods, and `query()`.
  *
- * ## Svelte 5 runes usage
+ * @example
  * ```svelte
  * <script>
  *   import { useGraph } from '@plures/unum';
@@ -72,8 +73,9 @@ function toEdge<E>(id: string, raw: unknown): GraphEdge<E> {
  * {/each}
  * ```
  *
- * ## Svelte 4 store usage
+ * @example
  * ```svelte
+ * <!-- Svelte 4 store usage -->
  * <script>
  *   import { useGraph } from '@plures/unum';
  *   const graph = useGraph('my-graph');
