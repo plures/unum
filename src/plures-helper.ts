@@ -15,6 +15,23 @@ import type { DbAdapter, ChainNode } from './types.js';
 
 /**
  * Returns `true` when a DbAdapter has been provided (non-null).
+ *
+ * Acts as a TypeScript type guard, narrowing the argument type from
+ * `DbAdapter | null | undefined` to `DbAdapter` in the truthy branch.
+ *
+ * @param adapter - The adapter value to test.
+ * @returns `true` if `adapter` is a non-null `DbAdapter`, otherwise `false`.
+ *
+ * @example
+ * ```ts
+ * import { isPluresAvailable, getAdapter } from '@plures/unum';
+ *
+ * const adapter = getAdapter();
+ * if (isPluresAvailable(adapter)) {
+ *   // adapter is DbAdapter here
+ *   adapter.root().get('todos');
+ * }
+ * ```
  */
 export function isPluresAvailable(adapter: DbAdapter | null | undefined): adapter is DbAdapter {
   return adapter != null;
@@ -30,6 +47,24 @@ export const isGunAvailable = isPluresAvailable;
 /**
  * Safely reads a deeply nested property from a plain object using a
  * dot-delimited `path` string.
+ *
+ * Returns `defaultValue` (or `undefined`) when any segment along the path is
+ * `null`, `undefined`, or the property does not exist.  Never throws.
+ *
+ * @param obj          - The root object to read from.
+ * @param path         - Dot-delimited path to the desired property (e.g. `'user.address.city'`).
+ * @param defaultValue - Value to return when the path cannot be resolved.
+ * @returns The value found at `path`, or `defaultValue` if not reachable.
+ *
+ * @example
+ * ```ts
+ * import { safeGet } from '@plures/unum';
+ *
+ * const obj = { user: { name: 'Alice', age: 30 } };
+ * safeGet(obj, 'user.name');        // 'Alice'
+ * safeGet(obj, 'user.email', 'n/a'); // 'n/a'
+ * safeGet(null, 'any.path', 0);      // 0
+ * ```
  */
 export function safeGet<T = unknown>(
   obj: unknown,
@@ -55,7 +90,25 @@ export function safeGet<T = unknown>(
 
 /**
  * Safely transforms a plain object of database records into an array.
- * Skips Gun/PluresDB internal `_` metadata keys.
+ *
+ * Skips Gun/PluresDB internal `_` metadata keys and silently ignores
+ * entries where `callback` throws.  Returns an empty array when `dbData`
+ * is falsy or not an object — never throws.
+ *
+ * @param dbData    - Raw database record object (keyed by item ID).
+ * @param callback  - Mapper called with `(key, value)` for each entry.
+ * @param filterFn  - Optional predicate; only entries that return `true` are mapped.
+ * @returns Array of transformed values (nulls from throwing callbacks are removed).
+ *
+ * @example
+ * ```ts
+ * import { safeMap } from '@plures/unum';
+ *
+ * interface Todo { text: string; done: boolean }
+ * const raw = { abc: { text: 'Buy milk', done: false }, _: { '#': 'meta' } };
+ * const todos = safeMap<Todo, string>(raw, (id, v) => `${id}: ${v.text}`);
+ * // ['abc: Buy milk']
+ * ```
  */
 export function safeMap<T = unknown, R = unknown>(
   dbData: unknown,
@@ -91,8 +144,18 @@ export function safeMap<T = unknown, R = unknown>(
  * Builds a chained `ChainNode` reference from a dot-separated `path` string,
  * with support for `#` as a shorthand for `.map()`.
  *
+ * Returns `null` when `adapter` is `null` or when an error occurs during
+ * traversal — never throws.
+ *
+ * @param adapter - A `DbAdapter` instance, or `null` (returns `null` when null).
+ * @param path    - Optional dot-delimited path (e.g. `'todos'`, `'todos.#'`).
+ *                  Uses the root node when omitted.
+ * @returns A `ChainNode` for the requested path, or `null` on failure.
+ *
  * @example
  * ```ts
+ * import { safeChain } from '@plures/unum';
+ *
  * const ref = safeChain(adapter, 'todos.#');
  * // equivalent to: adapter.root().get('todos').map()
  * ```

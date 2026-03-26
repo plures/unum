@@ -28,6 +28,8 @@ function createMemNode(): MemNode {
  * - Server-side rendering — safe to use in Node.js / Deno without persistence.
  * - The `inner` adapter for `createHyperswarmAdapter()`.
  *
+ * @returns A new `DbAdapter` backed entirely by in-memory data structures.
+ *
  * @example
  * ```ts
  * import { initDb, createMemoryAdapter } from '@plures/unum';
