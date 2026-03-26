@@ -16,21 +16,37 @@ import {
 
 // ─── Facts ──────────────────────────────────────────────────────────────────
 
+/**
+ * Fact emitted when a freshness check determines that data at a path is
+ * within its TTL and therefore still considered current.
+ */
 export const DataFresh = defineFact<
   'unum.freshness.fresh',
   { path: string; age: number; ttl: number }
 >('unum.freshness.fresh');
 
+/**
+ * Fact emitted when a freshness check determines that data at a path has
+ * exceeded its TTL and is no longer considered current.
+ */
 export const DataStale = defineFact<
   'unum.freshness.stale',
   { path: string; age: number; ttl: number }
 >('unum.freshness.stale');
 
+/**
+ * Fact emitted when the engine decides to trigger a data refresh, either
+ * because the data became stale or an explicit refresh was requested.
+ */
 export const RefreshTriggered = defineFact<
   'unum.freshness.refresh-triggered',
   { path: string; reason: string }
 >('unum.freshness.refresh-triggered');
 
+/**
+ * Fact emitted when a write to a path invalidates its cached/fresh state,
+ * forcing consumers to treat the previous freshness reading as void.
+ */
 export const CacheInvalidated = defineFact<
   'unum.freshness.cache-invalidated',
   { path: string; reason: string }
@@ -38,16 +54,29 @@ export const CacheInvalidated = defineFact<
 
 // ─── Events ─────────────────────────────────────────────────────────────────
 
+/**
+ * Event fired to request a freshness evaluation for a path.
+ * Carries the path, the timestamp of the last known write, and an optional
+ * `now` override for deterministic testing.
+ */
 export const FreshnessCheckRequested = defineEvent<
   'unum.freshness.check-requested',
   { path: string; lastUpdated: number; now?: number }
 >('unum.freshness.check-requested');
 
+/**
+ * Event fired whenever data is written to a path.
+ * Used by the cache-invalidation rule to invalidate freshness state.
+ */
 export const DataWritten = defineEvent<
   'unum.freshness.data-written',
   { path: string; timestamp: number }
 >('unum.freshness.data-written');
 
+/**
+ * Event fired to request an explicit (manual) refresh of data at a path,
+ * bypassing the normal TTL-based staleness detection.
+ */
 export const RefreshRequested = defineEvent<
   'unum.freshness.refresh-requested',
   { path: string; reason?: string }
@@ -55,6 +84,10 @@ export const RefreshRequested = defineEvent<
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
+/**
+ * Runtime context injected into the freshness module rules.
+ * Values here override the static configuration supplied to {@link freshnessModule}.
+ */
 export interface FreshnessContext {
   /** Per-path TTL overrides (milliseconds) */
   ttlOverrides?: Record<string, number>;

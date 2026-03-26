@@ -16,21 +16,37 @@ import {
 
 // ─── Facts ──────────────────────────────────────────────────────────────────
 
+/**
+ * Fact emitted when a subscription request passes all eligibility checks
+ * (auth, path allow-list, and concurrency limit).
+ */
 export const SubscriptionEligible = defineFact<
   'unum.subscription.eligible',
   { streamId: string; reason: string }
 >('unum.subscription.eligible');
 
+/**
+ * Fact emitted when a subscription request fails one or more eligibility
+ * checks (e.g. unauthenticated, blocked path, or concurrency limit reached).
+ */
 export const SubscriptionIneligible = defineFact<
   'unum.subscription.ineligible',
   { streamId: string; reason: string }
 >('unum.subscription.ineligible');
 
+/**
+ * Fact emitted when an incoming stream update is forwarded to its target
+ * path because the originating stream is eligible.
+ */
 export const StreamRouted = defineFact<
   'unum.subscription.routed',
   { streamId: string; targetPath: string }
 >('unum.subscription.routed');
 
+/**
+ * Fact emitted when an incoming stream update is dropped because the
+ * originating stream has been marked ineligible.
+ */
 export const StreamFiltered = defineFact<
   'unum.subscription.filtered',
   { streamId: string; reason: string }
@@ -38,11 +54,21 @@ export const StreamFiltered = defineFact<
 
 // ─── Events ─────────────────────────────────────────────────────────────────
 
+/**
+ * Event fired when a consumer requests a subscription to a reactive stream.
+ * The engine evaluates eligibility and emits either {@link SubscriptionEligible}
+ * or {@link SubscriptionIneligible}.
+ */
 export const SubscriptionRequested = defineEvent<
   'unum.subscription.requested',
   { streamId: string; path: string; context?: Record<string, unknown> }
 >('unum.subscription.requested');
 
+/**
+ * Event fired when a reactive stream delivers a new data update.
+ * The routing rule uses the current eligibility facts to decide whether
+ * to emit {@link StreamRouted} or {@link StreamFiltered}.
+ */
 export const StreamUpdateReceived = defineEvent<
   'unum.subscription.stream-update',
   { streamId: string; data: unknown; path: string }
@@ -50,6 +76,11 @@ export const StreamUpdateReceived = defineEvent<
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
+/**
+ * Runtime context injected into the subscription-policy module rules.
+ * Values here override or extend the static configuration supplied to
+ * {@link subscriptionPolicyModule}.
+ */
 export interface SubscriptionPolicyContext {
   /** Paths/streams the current context is allowed to subscribe to */
   allowedPaths?: string[];
