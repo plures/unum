@@ -1,6 +1,24 @@
 # @plures/unum
 
+[![CI](https://github.com/plures/unum/actions/workflows/ci.yml/badge.svg)](https://github.com/plures/unum/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@plures/unum.svg)](https://www.npmjs.com/package/@plures/unum)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
+
 Reactive [PluresDB](https://github.com/plures/pluresdb) bindings for Svelte — backend-agnostic, TypeScript-first, Svelte 5 runes-ready.
+
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [API Reference](#api-reference)
+- [Custom Adapters](#custom-adapters)
+- [Examples](#examples)
+- [Migration Guide](#migration-guide)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [License](#license)
 
 ## Features
 
@@ -10,6 +28,25 @@ Reactive [PluresDB](https://github.com/plures/pluresdb) bindings for Svelte — 
 - **Real-time** — subscription-based reactivity, no polling
 - **P2P** — optional Hyperswarm adapter for peer-to-peer graph sync
 - **Graph & Collection APIs** — purpose-built primitives for complex data
+
+## Requirements
+
+| Requirement | Version |
+|---|---|
+| Node.js | ≥ 18 |
+| Svelte | 4.x or 5.x |
+| TypeScript | ≥ 5.0 (optional but recommended) |
+
+**Peer dependencies** (install as needed):
+
+| Package | Required for |
+|---|---|
+| `svelte` | All usage |
+| `pluresdb` | `createPluresDbAdapter()` |
+| `hyperswarm` | `createHyperswarmAdapter()` |
+| `@plures/praxis` | Praxis rule-engine modules |
+
+---
 
 ## Installation
 
@@ -318,6 +355,47 @@ export function createMyAdapter(): DbAdapter {
   };
 }
 ```
+
+---
+
+## Examples
+
+Runnable examples are in the [`examples/`](./examples) directory:
+
+| Example | Description |
+|---|---|
+| [`examples/svelte-kit-demo`](./examples/svelte-kit-demo) | Full SvelteKit app using `createCollection` and `useGraph` |
+| [`examples/deno-svelte-demo`](./examples/deno-svelte-demo) | Deno + Svelte demo with the memory adapter |
+
+---
+
+## Migration Guide
+
+Migrating from the `PluresStore`/`pluresData` (Svelte 4) API to the `useGraph()`/`createCollection()` runes API?
+See **[MIGRATION.md](./MIGRATION.md)** for a step-by-step guide.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository and create a feature branch (`git checkout -b feat/my-feature`).
+2. Install dependencies: `npm install`.
+3. Make your changes; add or update tests in `tests/`.
+4. Run the full test suite: `npm test`.
+5. Run the type-checker: `npm run lint`.
+6. Commit using [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, `docs:`, etc.).
+7. Open a pull request against `main`.
+
+> **Note:** All public API functions must have JSDoc comments with `@param` and `@example` tags.
+> The README must stay in sync with exports in `src/index.ts`.
+
+---
+
+## Changelog
+
+See **[CHANGELOG.md](./CHANGELOG.md)** for a full history of notable changes.
 
 ---
 
