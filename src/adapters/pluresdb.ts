@@ -8,6 +8,20 @@
 import type { ChainNode, DataCallback, DbAdapter, Unsubscribe } from '../types.js';
 
 /**
+ * Minimal structural interface for PluresDB / Gun chain nodes.
+ * Matches the subset of the chain API that unum requires.
+ */
+export interface PluresDbChainLike {
+  get(key: string): PluresDbChainLike;
+  put(data: unknown, cb?: DataCallback): unknown;
+  set(data: unknown, cb?: DataCallback): unknown;
+  on(cb: DataCallback): unknown;
+  once(cb: DataCallback): void;
+  map(): PluresDbChainLike;
+  off(): void;
+}
+
+/**
  * Wrap a PluresDB or Gun instance as a `DbAdapter`.
  *
  * PluresDB exposes a Gun-compatible chain API (`get`, `put`, `on`, `once`,
@@ -27,24 +41,24 @@ import type { ChainNode, DataCallback, DbAdapter, Unsubscribe } from '../types.j
  * initDb(createPluresDbAdapter(db));
  * ```
  */
-export function createPluresDbAdapter(db: any): DbAdapter {
-  function wrapChain(chain: any): ChainNode {
+export function createPluresDbAdapter(db: PluresDbChainLike): DbAdapter {
+  function wrapChain(chain: PluresDbChainLike): ChainNode {
     return {
       get(key: string) {
         return wrapChain(chain.get(key));
       },
-      put(data: any, cb?: DataCallback) {
+      put(data: unknown, cb?: DataCallback) {
         chain.put(data, cb);
         return this;
       },
-      set(data: any, cb?: DataCallback) {
+      set(data: unknown, cb?: DataCallback) {
         chain.set(data, cb);
         return this;
       },
       on(cb: DataCallback): Unsubscribe {
         const ref = chain.on(cb);
         // Gun returns the chain, not an unsub function
-        return typeof ref === 'function' ? ref : () => chain.off();
+        return typeof ref === 'function' ? (ref as Unsubscribe) : () => chain.off();
       },
       once(cb: DataCallback) {
         chain.once(cb);

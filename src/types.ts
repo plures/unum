@@ -5,7 +5,7 @@
  */
 
 /** Callback for data subscriptions */
-export type DataCallback = (data: any, key?: string) => void;
+export type DataCallback = (data: unknown, key?: string) => void;
 
 // ---------------------------------------------------------------------------
 // Graph types
@@ -15,7 +15,7 @@ export type DataCallback = (data: any, key?: string) => void;
  * A node in the graph.
  * `T` is the shape of the application data stored on the node.
  */
-export interface GraphNode<T = Record<string, any>> {
+export interface GraphNode<T = Record<string, unknown>> {
   /** Unique identifier for this node */
   id: string;
   /** Application data stored on this node */
@@ -26,7 +26,7 @@ export interface GraphNode<T = Record<string, any>> {
  * A directed edge in the graph.
  * `T` is the shape of the application data stored on the edge.
  */
-export interface GraphEdge<T = Record<string, any>> {
+export interface GraphEdge<T = Record<string, unknown>> {
   /** Unique identifier for this edge */
   id: string;
   /** ID of the source node */
@@ -41,8 +41,8 @@ export interface GraphEdge<T = Record<string, any>> {
  * Complete snapshot of the graph — used as the value emitted by subscribe().
  */
 export interface GraphState<
-  N = Record<string, any>,
-  E = Record<string, any>,
+  N = Record<string, unknown>,
+  E = Record<string, unknown>,
 > {
   /** Map of node ID → GraphNode */
   nodes: Record<string, GraphNode<N>>;
@@ -106,8 +106,8 @@ export interface GraphQuery<T> {
  * ```
  */
 export interface GraphRef<
-  N = Record<string, any>,
-  E = Record<string, any>,
+  N = Record<string, unknown>,
+  E = Record<string, unknown>,
 > {
   // ---- Reactive accessors (work with $derived in Svelte 5) ---------------
 
@@ -182,7 +182,7 @@ export type Unsubscribe = () => void;
  * A single item in a typed collection.
  * `T` is the shape of the application data stored on the item.
  */
-export interface CollectionItem<T = Record<string, any>> {
+export interface CollectionItem<T = Record<string, unknown>> {
   /** Unique identifier for this item */
   id: string;
   /** Application data stored on this item */
@@ -241,7 +241,7 @@ export interface CollectionQuery<T> {
  * {/each}
  * ```
  */
-export interface CollectionRef<T = Record<string, any>> {
+export interface CollectionRef<T = Record<string, unknown>> {
   // ---- Reactive accessors (work with $derived in Svelte 5) ---------------
 
   /** Current items as a flat array */
@@ -293,9 +293,9 @@ export interface ChainNode {
   /** Navigate to a child key */
   get(key: string): ChainNode;
   /** Write data at this path */
-  put(data: any, cb?: DataCallback): ChainNode;
+  put(data: unknown, cb?: DataCallback): ChainNode;
   /** Add an item to a collection (auto-generates key) */
-  set(data: any, cb?: DataCallback): ChainNode;
+  set(data: unknown, cb?: DataCallback): ChainNode;
   /** Subscribe to live updates */
   on(cb: DataCallback): Unsubscribe;
   /** Read once */
@@ -321,21 +321,21 @@ export interface DbAdapter {
  */
 export interface PluresDataOptions {
   /** Initial/default data before first load */
-  defaults?: Record<string, any>;
+  defaults?: Record<string, unknown>;
 }
 
 /**
  * Reactive data reference returned by pluresData()
  */
-export interface DataRef<T = Record<string, any>> {
+export interface DataRef<T = Record<string, unknown>> {
   /** Current state snapshot */
   readonly state: T;
   /** For collections: array of items. For single items: the item. */
-  readonly value: any;
+  readonly value: T | Array<T & { id: string }>;
   /** Get all items as an array (collections only) */
   list(): Array<T & { id: string }>;
   /** Add an item to the collection */
-  add(data: any): void;
+  add(data: Omit<T, 'id'> & { id?: string }): void;
   /** Update an item or the current item */
   update(idOrUpdater: string | Partial<T> | ((item: T) => Partial<T>), updater?: Partial<T> | ((item: T) => Partial<T>)): void;
   /** Remove an item by ID */

@@ -39,6 +39,25 @@ interface SyncMessage {
   data: unknown;
 }
 
+/**
+ * Minimal structural interface for a single Hyperswarm peer connection.
+ */
+export interface SwarmConnection {
+  on(event: 'data', handler: (buf: unknown) => void): void;
+  on(event: 'error', handler: () => void): void;
+  on(event: 'close', handler: () => void): void;
+  write(data: Uint8Array): void;
+}
+
+/**
+ * Minimal structural interface for a Hyperswarm instance.
+ * Matches the subset of the Hyperswarm API that unum requires.
+ */
+export interface HyperswarmLike {
+  on(event: 'connection', handler: (conn: SwarmConnection) => void): void;
+  destroy(): void;
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -56,13 +75,13 @@ interface SyncMessage {
  *               `createPluresDbAdapter(db)` when persisting locally.
  * @returns A `DbAdapter` that transparently syncs all writes to connected peers.
  */
-export function createHyperswarmAdapter(swarm: any, inner: DbAdapter): DbAdapter {
+export function createHyperswarmAdapter(swarm: HyperswarmLike, inner: DbAdapter): DbAdapter {
   /** Currently open peer connections. */
-  const connections = new Set<any>();
+  const connections = new Set<SwarmConnection>();
 
   // ---- Peer connection handling -------------------------------------------
 
-  swarm.on('connection', (conn: any) => {
+  swarm.on('connection', (conn: SwarmConnection) => {
     connections.add(conn);
 
     conn.on('data', (buf: unknown) => {
@@ -121,13 +140,13 @@ export function createHyperswarmAdapter(swarm: any, inner: DbAdapter): DbAdapter
         return wrapChain([...path, key], chainNode.get(key));
       },
 
-      put(data: any, cb?: DataCallback): ChainNode {
+      put(data: unknown, cb?: DataCallback): ChainNode {
         broadcast(path, data);
         chainNode.put(data, cb);
         return this;
       },
 
-      set(data: any, cb?: DataCallback): ChainNode {
+      set(data: unknown, cb?: DataCallback): ChainNode {
         // Generate a cryptographically unique ID so the full broadcast path
         // is known before the inner adapter generates its own key.
         const id = crypto.randomUUID().slice(0, 12);

@@ -4,7 +4,7 @@
 
 import { writable, type Writable } from 'svelte/store';
 import { getRoot } from './context.js';
-import type { Unsubscribe } from './types.js';
+import type { ChainNode, Unsubscribe } from './types.js';
 
 /**
  * A Svelte-compatible writable store that syncs a single value with PluresDB.
@@ -31,10 +31,11 @@ import type { Unsubscribe } from './types.js';
  * counter.destroy();
  * ```
  */
-export class PluresStore<T = any> {
+export class PluresStore<T = unknown> {
   private store: Writable<T>;
   private unsub: Unsubscribe | null = null;
   private isUpdatingFromDb = false;
+  private readonly _ref: ChainNode;
 
   /**
    * @param path         - Path in PluresDB to bind to (e.g. `'settings/theme'`).
@@ -42,18 +43,15 @@ export class PluresStore<T = any> {
    */
   constructor(path: string, initialValue?: T) {
     this.store = writable<T>(initialValue as T);
-    const ref = getRoot().get(path);
+    this._ref = getRoot().get(path);
 
     // Subscribe to DB updates
-    this.unsub = ref.on((data: any) => {
+    this.unsub = this._ref.on((data: unknown) => {
       if (data == null) return;
       this.isUpdatingFromDb = true;
       this.store.set(data as T);
       this.isUpdatingFromDb = false;
     });
-
-    // Expose put for writes
-    (this as any)._ref = ref;
   }
 
   /** Subscribe to value changes — Svelte store protocol. */
@@ -65,7 +63,7 @@ export class PluresStore<T = any> {
   set(value: T) {
     this.store.set(value);
     if (!this.isUpdatingFromDb) {
-      (this as any)._ref.put(value);
+      this._ref.put(value);
     }
   }
 
@@ -74,7 +72,7 @@ export class PluresStore<T = any> {
     this.store.update((cur) => {
       const next = updater(cur);
       if (!this.isUpdatingFromDb) {
-        (this as any)._ref.put(next);
+        this._ref.put(next);
       }
       return next;
     });
@@ -100,6 +98,6 @@ export class PluresStore<T = any> {
  * @param path         - Path in PluresDB to bind to.
  * @param initialValue - Optional initial value used before the first DB read.
  */
-export function createPluresStore<T = any>(path: string, initialValue?: T): PluresStore<T> {
+export function createPluresStore<T = unknown>(path: string, initialValue?: T): PluresStore<T> {
   return new PluresStore(path, initialValue);
 }
