@@ -24,7 +24,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 /** Parse raw DB data into a GraphNode */
-function toNode<N>(id: string, raw: any): GraphNode<N> {
+function toNode<N>(id: string, raw: unknown): GraphNode<N> {
   return { id, data: raw as N };
 }
 
@@ -33,8 +33,8 @@ function toNode<N>(id: string, raw: any): GraphNode<N> {
  * `source` and `target` are reserved top-level fields; everything else
  * is treated as edge application data.
  */
-function toEdge<E>(id: string, raw: any): GraphEdge<E> {
-  const { source, target, ...rest } = raw as Record<string, any>;
+function toEdge<E>(id: string, raw: unknown): GraphEdge<E> {
+  const { source, target, ...rest } = raw as Record<string, unknown>;
   return { id, source: source as string, target: target as string, data: rest as E };
 }
 
@@ -83,8 +83,8 @@ function toEdge<E>(id: string, raw: any): GraphEdge<E> {
  * ```
  */
 export function useGraph<
-  N extends Record<string, any> = Record<string, any>,
-  E extends Record<string, any> = Record<string, any>,
+  N extends Record<string, any> = Record<string, unknown>,
+  E extends Record<string, any> = Record<string, unknown>,
 >(path: string): GraphRef<N, E> {
   let nodesMap: Record<string, GraphNode<N>> = {};
   let edgesMap: Record<string, GraphEdge<E>> = {};
@@ -111,7 +111,7 @@ export function useGraph<
   // ---- DB subscriptions --------------------------------------------------
 
   dbUnsubs.push(
-    nodesRef.map().on((raw: any, key?: string) => {
+    nodesRef.map().on((raw: unknown, key?: string) => {
       if (!key || key === '_') return;
       if (raw === null || raw === undefined) {
         const next = { ...nodesMap };
@@ -125,7 +125,7 @@ export function useGraph<
   );
 
   dbUnsubs.push(
-    edgesRef.map().on((raw: any, key?: string) => {
+    edgesRef.map().on((raw: unknown, key?: string) => {
       if (!key || key === '_') return;
       if (raw === null || raw === undefined) {
         const next = { ...edgesMap };
@@ -158,8 +158,8 @@ export function useGraph<
     // ---- node mutations --------------------------------------------------
 
     addNode(nodeData): string {
-      const anyData = nodeData as any;
-      const id: string = anyData.id ?? crypto.randomUUID().slice(0, 12);
+      const anyData = nodeData as Record<string, unknown>;
+      const id: string = (anyData.id as string | undefined) ?? crypto.randomUUID().slice(0, 12);
       const { id: _stripped, ...rest } = anyData;
       nodesRef.get(id).put(rest);
       nodesMap = { ...nodesMap, [id]: toNode<N>(id, rest) };

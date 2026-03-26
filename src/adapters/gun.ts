@@ -19,6 +19,20 @@
 import type { ChainNode, DataCallback, DbAdapter, Unsubscribe } from '../types.js';
 
 /**
+ * Minimal structural interface for Gun.js chain nodes.
+ * Matches the subset of the Gun API that unum requires.
+ */
+export interface GunChainLike {
+  get(key: string): GunChainLike;
+  put(data: unknown, cb?: DataCallback): unknown;
+  set?: (data: unknown, cb?: DataCallback) => unknown;
+  on(cb: DataCallback): unknown;
+  once(cb: DataCallback): void;
+  map(): GunChainLike;
+  off(): void;
+}
+
+/**
  * Wrap a Gun.js instance as a `DbAdapter`.
  *
  * Gun already exposes `get`, `put`, `on`, `once`, `off`, and `map` — the
@@ -38,24 +52,24 @@ import type { ChainNode, DataCallback, DbAdapter, Unsubscribe } from '../types.j
  * initDb(createGunAdapter(gun));
  * ```
  */
-export function createGunAdapter(gun: any): DbAdapter {
-  function wrapChain(chain: any): ChainNode {
+export function createGunAdapter(gun: GunChainLike): DbAdapter {
+  function wrapChain(chain: GunChainLike): ChainNode {
     return {
       get(key: string) {
         return wrapChain(chain.get(key));
       },
-      put(data: any, cb?: DataCallback) {
+      put(data: unknown, cb?: DataCallback) {
         chain.put(data, cb);
         return this;
       },
-      set(data: any, cb?: DataCallback) {
+      set(data: unknown, cb?: DataCallback) {
         chain.set ? chain.set(data, cb) : chain.get(Date.now().toString()).put(data, cb);
         return this;
       },
       on(cb: DataCallback): Unsubscribe {
         const ref = chain.on(cb);
         // Gun returns the chain node, not an unsubscribe function
-        return typeof ref === 'function' ? ref : () => chain.off();
+        return typeof ref === 'function' ? (ref as Unsubscribe) : () => chain.off();
       },
       once(cb: DataCallback) {
         chain.once(cb);

@@ -6,7 +6,7 @@
 import type { ChainNode, DataCallback, DbAdapter, Unsubscribe } from '../types.js';
 
 interface MemNode {
-  data: any;
+  data: unknown;
   children: Map<string, MemNode>;
   listeners: Set<DataCallback>;
   mapListeners: Set<DataCallback>;
@@ -67,7 +67,7 @@ export function createMemoryAdapter(): DbAdapter {
     return {
       get(key: string) { return makeChain([...path, key]); },
 
-      put(data: any, cb?: DataCallback) {
+      put(data: unknown, cb?: DataCallback) {
         const node = resolve(root, path);
         node.data = data;
         const key = path[path.length - 1];
@@ -94,7 +94,7 @@ export function createMemoryAdapter(): DbAdapter {
         return this;
       },
 
-      set(data: any, cb?: DataCallback) {
+      set(data: unknown, cb?: DataCallback) {
         const id = Math.random().toString(36).slice(2, 10);
         makeChain([...path, id]).put(data, cb);
         return makeChain([...path, id]);

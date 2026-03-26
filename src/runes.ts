@@ -26,42 +26,43 @@ import type { DataRef, DataCallback, Unsubscribe } from './types.js';
  * {/each}
  * ```
  */
-export function pluresData<T extends Record<string, any> = Record<string, any>>(
+export function pluresData<T extends Record<string, any> = Record<string, unknown>>(
   path: string,
   id?: string | null,
 ): DataRef<T> {
-  let state: Record<string, any> = {};
-  let subs: Array<(s: any) => void> = [];
+  let state: Record<string, unknown> = {};
+  let subs: Array<(s: T) => void> = [];
   const unsubs: Unsubscribe[] = [];
 
   const root = getRoot();
   const ref = root.get(path);
 
   function notify() {
+    const snapshot = state as unknown as T;
     for (const cb of subs) {
-      try { cb(state); } catch (e) { console.error('[pluresData]', e); }
+      try { cb(snapshot); } catch (e) { console.error('[pluresData]', e); }
     }
   }
 
   if (id) {
     // Single item binding
-    const u = ref.get(id).on((data: any) => {
+    const u = ref.get(id).on((data: unknown) => {
       if (data) {
-        state = { ...data };
+        state = { ...(data as Record<string, unknown>) };
         notify();
       }
     });
     unsubs.push(u);
   } else {
     // Collection binding
-    const u = ref.map().on((data: any, key?: string) => {
+    const u = ref.map().on((data: unknown, key?: string) => {
       if (!key || key === '_') return;
       if (data === null || data === undefined) {
         const next = { ...state };
         delete next[key];
         state = next;
       } else {
-        state = { ...state, [key]: { ...data, id: key } };
+        state = { ...state, [key]: { ...(data as Record<string, unknown>), id: key } };
       }
       notify();
     });
@@ -69,8 +70,8 @@ export function pluresData<T extends Record<string, any> = Record<string, any>>(
   }
 
   const dataRef: DataRef<T> = {
-    get state() { return state as T; },
-    get value() { return id ? state : this.list(); },
+    get state() { return state as unknown as T; },
+    get value() { return id ? state as unknown as T : this.list(); },
 
     list() {
       return Object.values(state).filter(
@@ -78,27 +79,35 @@ export function pluresData<T extends Record<string, any> = Record<string, any>>(
       );
     },
 
-    add(data: any) {
+    add(data: Omit<T, 'id'> & { id?: string }) {
       if (id) return;
-      const itemId = data.id ?? crypto.randomUUID().slice(0, 8);
-      const { id: _strip, ...rest } = data;
+      const itemData = data as Record<string, unknown>;
+      const itemId = (itemData.id as string | undefined) ?? crypto.randomUUID().slice(0, 8);
+      const { id: _strip, ...rest } = itemData;
       ref.get(itemId).put(rest);
       state = { ...state, [itemId]: { ...rest, id: itemId } };
       notify();
     },
 
-    update(idOrUpdater: any, updater?: any) {
+    update(
+      idOrUpdater: string | Partial<T> | ((item: T) => Partial<T>),
+      updater?: Partial<T> | ((item: T) => Partial<T>),
+    ) {
       if (id) {
-        const updated = typeof idOrUpdater === 'function' ? idOrUpdater(state) : idOrUpdater;
+        const updated = typeof idOrUpdater === 'function'
+          ? idOrUpdater(state as unknown as T)
+          : idOrUpdater as Partial<T>;
         ref.get(id).put(updated);
-        state = { ...state, ...updated };
+        state = { ...state, ...(updated as Record<string, unknown>) };
         notify();
       } else if (typeof idOrUpdater === 'string' && updater != null) {
         const item = state[idOrUpdater];
         if (!item) return;
-        const updated = typeof updater === 'function' ? updater(item) : updater;
+        const updated = typeof updater === 'function'
+          ? updater(item as unknown as T)
+          : updater;
         ref.get(idOrUpdater).put(updated);
-        state = { ...state, [idOrUpdater]: { ...item, ...updated } };
+        state = { ...state, [idOrUpdater]: { ...(item as Record<string, unknown>), ...(updated as Record<string, unknown>) } };
         notify();
       }
     },
@@ -116,9 +125,9 @@ export function pluresData<T extends Record<string, any> = Record<string, any>>(
       notify();
     },
 
-    subscribe(cb: (s: any) => void): Unsubscribe {
+    subscribe(cb: (s: T) => void): Unsubscribe {
       subs.push(cb);
-      cb(state);
+      cb(state as unknown as T);
       return () => { subs = subs.filter(s => s !== cb); };
     },
 
@@ -149,9 +158,9 @@ export function pluresData<T extends Record<string, any> = Record<string, any>>(
  * pending.destroy();
  * ```
  */
-export function pluresDerived<T = any>(
+export function pluresDerived<T>(
   source: DataRef,
-  transform: (items: any[]) => T[],
+  transform: (items: Array<Record<string, unknown> & { id: string }>) => T[],
 ): { readonly value: T[]; destroy(): void } {
   let derived: T[] = [];
   const unsub = source.subscribe(() => {
@@ -184,15 +193,15 @@ export function pluresDerived<T = any>(
  * ```
  */
 export function pluresBind(source: DataRef, field: string) {
-  let _value = source.state?.[field] ?? '';
+  let _value: unknown = (source.state as Record<string, unknown>)[field] ?? '';
   const unsub = source.subscribe((state) => {
-    _value = state?.[field] ?? '';
+    _value = (state as Record<string, unknown>)[field] ?? '';
   });
   return {
     get value() { return _value; },
-    set value(v: any) {
+    set value(v: unknown) {
       _value = v;
-      source.update({ [field]: v });
+      source.update({ [field]: v } as Parameters<typeof source.update>[0]);
     },
     destroy() { unsub(); },
   };

@@ -72,7 +72,7 @@ import type {
  * ```
  */
 export function createCollection<
-  T extends Record<string, any> = Record<string, any>,
+  T extends Record<string, any> = Record<string, unknown>,
 >(path: string): CollectionRef<T> {
   let itemsMap: Record<string, CollectionItem<T>> = {};
   let collectionSubscribers: Array<(items: Array<CollectionItem<T>>) => void> = [];
@@ -97,7 +97,7 @@ export function createCollection<
   // ---- DB subscription ----------------------------------------------------
 
   dbUnsubs.push(
-    ref.map().on((raw: any, key?: string) => {
+    ref.map().on((raw: unknown, key?: string) => {
       if (!key || key === '_') return;
       if (raw === null || raw === undefined) {
         const next = { ...itemsMap };
