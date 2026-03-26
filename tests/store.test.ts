@@ -46,7 +46,7 @@ describe('PluresStore', () => {
     const values: unknown[] = [];
     const unsub = store.subscribe((v) => values.push(v));
     getRoot().get('profile').put({ name: 'Alice' });
-    expect(values.some((v: any) => v?.name === 'Alice')).toBe(true);
+    expect(values.some((v) => (v as { name?: string })?.name === 'Alice')).toBe(true);
     unsub();
     store.destroy();
   });

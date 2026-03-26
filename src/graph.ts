@@ -85,8 +85,8 @@ function toEdge<E>(id: string, raw: unknown): GraphEdge<E> {
  * ```
  */
 export function useGraph<
-  N extends Record<string, any> = Record<string, unknown>,
-  E extends Record<string, any> = Record<string, unknown>,
+  N extends Record<string, unknown> = Record<string, unknown>,
+  E extends Record<string, unknown> = Record<string, unknown>,
 >(path: string): GraphRef<N, E> {
   let nodesMap: Record<string, GraphNode<N>> = {};
   let edgesMap: Record<string, GraphEdge<E>> = {};

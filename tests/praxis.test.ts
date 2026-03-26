@@ -41,6 +41,7 @@ import {
   StreamRouted,
   StreamFiltered,
 } from '../src/praxis/subscription-policy.js';
+import type { SubscriptionPolicyContext } from '../src/praxis/subscription-policy.js';
 
 import {
   freshnessModule,
@@ -52,6 +53,7 @@ import {
   CacheInvalidated,
   RefreshRequested,
 } from '../src/praxis/freshness.js';
+import type { FreshnessContext } from '../src/praxis/freshness.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -305,8 +307,8 @@ describe('subscription-policy module', () => {
   });
 
   it('filters updates from ineligible streams', () => {
-    const registry = new PraxisRegistry();
-    registry.registerModule(subscriptionPolicyModule({ blockedPaths: ['admin'] }) as any);
+    const registry = new PraxisRegistry<SubscriptionPolicyContext>();
+    registry.registerModule(subscriptionPolicyModule({ blockedPaths: ['admin'] }));
     const engine = createPraxisEngine({
       initialContext: {},
       registry,
@@ -320,8 +322,8 @@ describe('subscription-policy module', () => {
   });
 
   it('constraint: reports violation when context.activeSubscriptions exceeds max', () => {
-    const registry = new PraxisRegistry();
-    registry.registerModule(subscriptionPolicyModule({ maxSubscriptions: 2 }) as any);
+    const registry = new PraxisRegistry<SubscriptionPolicyContext>();
+    registry.registerModule(subscriptionPolicyModule({ maxSubscriptions: 2 }));
     const engine = createPraxisEngine({
       initialContext: { activeSubscriptions: ['s1', 's2', 's3'] },
       registry,
@@ -331,8 +333,8 @@ describe('subscription-policy module', () => {
   });
 
   it('constraint: no violation when context.activeSubscriptions is within max', () => {
-    const registry = new PraxisRegistry();
-    registry.registerModule(subscriptionPolicyModule({ maxSubscriptions: 5 }) as any);
+    const registry = new PraxisRegistry<SubscriptionPolicyContext>();
+    registry.registerModule(subscriptionPolicyModule({ maxSubscriptions: 5 }));
     const engine = createPraxisEngine({
       initialContext: { activeSubscriptions: ['s1', 's2'] },
       registry,
@@ -376,8 +378,8 @@ describe('freshness module', () => {
   });
 
   it('auto-triggers refresh for stale paths', () => {
-    const registry = new PraxisRegistry();
-    registry.registerModule(freshnessModule({ defaultTtlMs: ttl, autoRefresh: true }) as any);
+    const registry = new PraxisRegistry<FreshnessContext>();
+    registry.registerModule(freshnessModule({ defaultTtlMs: ttl, autoRefresh: true }));
     const engine = createPraxisEngine({
       initialContext: { now },
       registry,
@@ -388,8 +390,8 @@ describe('freshness module', () => {
   });
 
   it('does not auto-trigger when autoRefresh is false', () => {
-    const registry = new PraxisRegistry();
-    registry.registerModule(freshnessModule({ defaultTtlMs: ttl, autoRefresh: false }) as any);
+    const registry = new PraxisRegistry<FreshnessContext>();
+    registry.registerModule(freshnessModule({ defaultTtlMs: ttl, autoRefresh: false }));
     const engine = createPraxisEngine({
       initialContext: { now },
       registry,

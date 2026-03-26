@@ -12,6 +12,7 @@ import {
   getPlures,
   getGun,
 } from '../src/plures-helper';
+import type { DbAdapter } from '../src/types';
 import { initDb, destroyDb, getAdapter } from '../src/context';
 import {
   initDb as ctxInitDb,
@@ -28,7 +29,7 @@ import { createMemoryAdapter } from '../src/adapters/memory';
 
 describe('isPluresAvailable', () => {
   it('returns true for a valid adapter', () => {
-    const mockAdapter = { root: () => ({} as unknown) } as any;
+    const mockAdapter = { root: () => ({}) } as unknown as DbAdapter;
     expect(isPluresAvailable(mockAdapter)).toBe(true);
   });
 
@@ -41,7 +42,7 @@ describe('isPluresAvailable', () => {
   });
 
   it('isGunAvailable is an alias for isPluresAvailable', () => {
-    const mockAdapter = { root: () => ({} as unknown) } as any;
+    const mockAdapter = { root: () => ({}) } as unknown as DbAdapter;
     expect(isGunAvailable(mockAdapter)).toBe(true);
     expect(isGunAvailable(null)).toBe(false);
   });
@@ -172,7 +173,7 @@ describe('safeChain', () => {
       root: () => {
         throw new Error('broken');
       },
-    } as any;
+    } as unknown as DbAdapter;
     expect(safeChain(brokenAdapter, 'path')).toBeNull();
   });
 });
@@ -315,8 +316,17 @@ describe('createPluresDbAdapter — chain methods', () => {
 });
 
 describe('createGunAdapter — chain methods', () => {
-  function makeMock(onReturn?: unknown, hasSet = true) {
-    const mock: any = {
+  interface MockChain {
+    get: ReturnType<typeof vi.fn>;
+    put: ReturnType<typeof vi.fn>;
+    on: ReturnType<typeof vi.fn>;
+    once: ReturnType<typeof vi.fn>;
+    off: ReturnType<typeof vi.fn>;
+    map: ReturnType<typeof vi.fn>;
+    set?: ReturnType<typeof vi.fn>;
+  }
+  function makeMock(onReturn?: unknown, hasSet = true): MockChain {
+    const mock: MockChain = {
       get: vi.fn().mockReturnThis(),
       put: vi.fn().mockReturnThis(),
       on: vi.fn().mockReturnValue(onReturn ?? (() => {})),
