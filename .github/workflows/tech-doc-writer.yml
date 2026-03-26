@@ -12,17 +12,27 @@ permissions:
 jobs:
   update-docs:
     runs-on: ubuntu-latest
-    if: >-
-      github.event.pull_request.merged == true &&
-      !contains(github.event.pull_request.title, '[docs]') &&
-      !contains(github.event.pull_request.title, 'chore(docs)')
     steps:
+      - name: Check trigger conditions
+        id: preflight
+        run: |
+          if [[ "${{ github.event_name }}" != "pull_request" ]] || \
+             [[ "${{ github.event.pull_request.merged }}" != "true" ]] || \
+             [[ "${{ contains(github.event.pull_request.title, '[docs]') }}" == "true" ]] || \
+             [[ "${{ contains(github.event.pull_request.title, 'chore(docs)') }}" == "true" ]]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.preflight.outputs.skip != 'true'
         with:
           ref: main
           fetch-depth: 2
 
       - name: Gather diff context
+        if: steps.preflight.outputs.skip != 'true'
         id: context
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
@@ -44,7 +54,7 @@ jobs:
           echo "$DIFF" > /tmp/code_diff.txt
 
       - name: Create doc update issue (unassigned)
-        if: steps.context.outputs.skip != 'true'
+        if: steps.preflight.outputs.skip != 'true' && steps.context.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.COPILOT_PAT }}
