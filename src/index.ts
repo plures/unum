@@ -17,6 +17,9 @@ export { createMemoryAdapter } from './adapters/memory.js';
 export { createGunAdapter } from './adapters/gun.js';
 export { createHyperswarmAdapter } from './adapters/hyperswarm.js';
 
+// Utility helpers
+export { isPluresAvailable, safeGet, safeMap, safeChain } from './plures-helper.js';
+
 // Types
 export type {
   ChainNode,
