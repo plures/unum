@@ -73,6 +73,8 @@ tasks.remove(id);
 
 ## API Reference
 
+See [`docs/API.md`](./docs/API.md) for the complete exported API surface.
+
 ### Adapter Setup
 
 #### `initDb(adapter)`
