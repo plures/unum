@@ -44,6 +44,7 @@ import type {
  * Create a reactive typed collection binding backed by PluresDB.
  *
  * @param path - Base path in the DB (e.g. `'tasks'`).
+ * @returns A `CollectionRef<T>` with reactive `items`/`size` getters, CRUD methods, `query()`, `subscribe()`, and `destroy()`.
  *
  * ## Svelte 5 runes usage
  * ```svelte

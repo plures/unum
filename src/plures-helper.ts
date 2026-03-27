@@ -193,6 +193,9 @@ export function safeChain(adapter: DbAdapter | null, path?: string): ChainNode |
  * `window.Gun`. That CDN-based pattern has been removed. Construct your DB
  * instance directly and wrap it in `createPluresDbAdapter`, then call
  * `initDb()` instead.
+ *
+ * @param _options - Ignored. Accepted only for backward-compatibility.
+ * @returns Always `null`. Use `createPluresDbAdapter()` or `createGunAdapter()` instead.
  */
 export function getPlures(_options?: unknown): null {
   console.warn(

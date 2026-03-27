@@ -154,6 +154,9 @@ export interface SchemaUnificationConfig {
 /**
  * Create the schema-unification Praxis module.
  *
+ * @param config - Optional configuration for allowed coercions and mapping validation.
+ * @returns A `PraxisModule` ready to register with a `PraxisRegistry`.
+ *
  * @example
  * ```ts
  * import { schemaUnificationModule } from '@plures/unum/praxis';
