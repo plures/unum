@@ -16,16 +16,28 @@ import {
 
 // ─── Facts ──────────────────────────────────────────────────────────────────
 
+/**
+ * Fact emitted when two or more data sources provide conflicting values for
+ * the same path and no clear priority winner can be determined.
+ */
 export const MergeConflictDetected = defineFact<
   'unum.merge.conflict',
   { path: string; sources: string[]; values: unknown[] }
 >('unum.merge.conflict');
 
+/**
+ * Fact emitted when a merge conflict has been resolved by selecting the
+ * highest-priority source value for a given path.
+ */
 export const MergeResolved = defineFact<
   'unum.merge.resolved',
   { path: string; winner: string; value: unknown }
 >('unum.merge.resolved');
 
+/**
+ * Fact emitted when the same source emits more than one update for an
+ * identical path within a single engine step (i.e. a duplicate write).
+ */
 export const DuplicateDetected = defineFact<
   'unum.merge.duplicate',
   { path: string; key: string }
@@ -33,11 +45,20 @@ export const DuplicateDetected = defineFact<
 
 // ─── Events ─────────────────────────────────────────────────────────────────
 
+/**
+ * Event fired whenever a data source writes a new value to a path.
+ * Carries the source name, affected path, new value, and optional priority.
+ */
 export const DataSourceUpdated = defineEvent<
   'unum.source.updated',
   { source: string; path: string; value: unknown; priority?: number }
 >('unum.source.updated');
 
+/**
+ * Event fired to request a merge decision for a set of competing source
+ * values at a given path.  The engine resolves this into either a
+ * {@link MergeResolved} or {@link MergeConflictDetected} fact.
+ */
 export const MergeRequested = defineEvent<
   'unum.merge.requested',
   { path: string; sources: Array<{ name: string; value: unknown; priority?: number }> }
@@ -45,6 +66,10 @@ export const MergeRequested = defineEvent<
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
+/**
+ * Runtime context injected into the merge-policy module rules.
+ * Values here override the static configuration supplied to {@link mergePolicyModule}.
+ */
 export interface MergePolicyContext {
   /** Source priority map: source name → priority (higher wins) */
   sourcePriorities?: Record<string, number>;

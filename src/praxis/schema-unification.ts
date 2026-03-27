@@ -16,31 +16,55 @@ import {
 
 // ─── Facts ──────────────────────────────────────────────────────────────────
 
+/**
+ * Fact emitted when a schema check determines that the source type is
+ * assignment-compatible with the target type (e.g. same type, or widening).
+ */
 export const SchemaCompatible = defineFact<
   'unum.schema.compatible',
   { path: string; sourceType: string; targetType: string }
 >('unum.schema.compatible');
 
+/**
+ * Fact emitted when a schema check determines that the source type cannot
+ * be safely assigned to the target type without an explicit coercion.
+ */
 export const SchemaIncompatible = defineFact<
   'unum.schema.incompatible',
   { path: string; sourceType: string; targetType: string; reason: string }
 >('unum.schema.incompatible');
 
+/**
+ * Fact emitted when a requested type coercion is present in the allowed
+ * coercion list and may therefore proceed.
+ */
 export const CoercionAllowed = defineFact<
   'unum.schema.coercion-allowed',
   { path: string; fromType: string; toType: string }
 >('unum.schema.coercion-allowed');
 
+/**
+ * Fact emitted when a requested type coercion is NOT in the allowed coercion
+ * list and must be rejected to maintain type safety.
+ */
 export const CoercionBlocked = defineFact<
   'unum.schema.coercion-blocked',
   { path: string; fromType: string; toType: string; reason: string }
 >('unum.schema.coercion-blocked');
 
+/**
+ * Fact emitted when a field mapping between two schemas is well-formed
+ * (both `sourceField` and `targetField` are non-empty strings).
+ */
 export const MappingValid = defineFact<
   'unum.schema.mapping-valid',
   { sourceField: string; targetField: string }
 >('unum.schema.mapping-valid');
 
+/**
+ * Fact emitted when a field mapping between two schemas is malformed —
+ * for example, when either field name is an empty string.
+ */
 export const MappingInvalid = defineFact<
   'unum.schema.mapping-invalid',
   { sourceField: string; targetField: string; reason: string }
@@ -48,16 +72,28 @@ export const MappingInvalid = defineFact<
 
 // ─── Events ─────────────────────────────────────────────────────────────────
 
+/**
+ * Event fired to request a type-compatibility check between a source type
+ * and a target type at a given path.
+ */
 export const SchemaCheckRequested = defineEvent<
   'unum.schema.check-requested',
   { path: string; sourceType: string; targetType: string }
 >('unum.schema.check-requested');
 
+/**
+ * Event fired to request a coercion gate decision for a `fromType → toType`
+ * conversion at a given path.
+ */
 export const CoercionRequested = defineEvent<
   'unum.schema.coercion-requested',
   { path: string; fromType: string; toType: string }
 >('unum.schema.coercion-requested');
 
+/**
+ * Event fired to validate that a field mapping between two schemas is
+ * well-formed before it is applied.
+ */
 export const MappingCheckRequested = defineEvent<
   'unum.schema.mapping-check-requested',
   { sourceField: string; targetField: string; sourceType?: string; targetType?: string }
@@ -65,6 +101,10 @@ export const MappingCheckRequested = defineEvent<
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
+/**
+ * Runtime context injected into the schema-unification module rules.
+ * Values here extend the static configuration supplied to {@link schemaUnificationModule}.
+ */
 export interface SchemaUnificationContext {
   /**
    * Allowed coercion pairs: `"fromType->toType"`.
