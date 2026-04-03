@@ -98,6 +98,9 @@ export interface MergePolicyConfig {
 /**
  * Create the merge-policy Praxis module.
  *
+ * @param config - Optional configuration for source priorities and duplicate detection.
+ * @returns A `PraxisModule` ready to register with a `PraxisRegistry`.
+ *
  * @example
  * ```ts
  * import { mergePolicyModule } from '@plures/unum/praxis';

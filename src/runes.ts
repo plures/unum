@@ -13,6 +13,7 @@ import type { DataRef, Unsubscribe } from './types.js';
  *
  * @param path - Collection/document path (e.g. 'todos', 'users/profile')
  * @param id   - Optional item ID for single-document binding
+ * @returns A `DataRef<T>` with reactive `state`, `value`, `list()`, CRUD methods, `subscribe()`, and `destroy()`.
  *
  * @example
  * ```svelte
@@ -149,6 +150,7 @@ export function pluresData<T extends Record<string, unknown> = Record<string, un
  *
  * @param source    - A `DataRef` returned by `pluresData()`.
  * @param transform - Pure function that maps the source item list to a new array.
+ * @returns An object with a `.value` getter and a `destroy()` cleanup method.
  *
  * @example
  * ```ts
@@ -181,6 +183,7 @@ export function pluresDerived<T>(
  *
  * @param source - A `DataRef` returned by `pluresData()`.
  * @param field  - The key on the data object to bind (e.g. `'name'`).
+ * @returns An object with a reactive `value` getter/setter and a `destroy()` cleanup method.
  *
  * @example
  * ```svelte

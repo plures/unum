@@ -119,6 +119,9 @@ export interface SubscriptionPolicyConfig {
 /**
  * Create the subscription-policy Praxis module.
  *
+ * @param config - Optional configuration for auth requirements, concurrency limits, and path filters.
+ * @returns A `PraxisModule` ready to register with a `PraxisRegistry`.
+ *
  * @example
  * ```ts
  * import { subscriptionPolicyModule } from '@plures/unum/praxis';

@@ -125,6 +125,9 @@ export interface FreshnessConfig {
 /**
  * Create the freshness Praxis module.
  *
+ * @param config - Optional configuration for TTL, auto-refresh, and cache invalidation.
+ * @returns A `PraxisModule` ready to register with a `PraxisRegistry`.
+ *
  * @example
  * ```ts
  * import { freshnessModule } from '@plures/unum/praxis';
