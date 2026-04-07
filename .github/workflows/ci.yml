@@ -1,54 +1,12 @@
 name: CI
-
-# Run on pull requests and pushes to main branch
 on:
   push:
-    branches: [main]
+    branches: [main, "copilot/**", "feature/**"]
   pull_request:
-    branches: [main]
   workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
+permissions:
+  contents: read
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    permissions:
-      contents: read
-    
-    strategy:
-      matrix:
-        node-version: [lts/*]
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Audit dependencies
-        run: npm audit --audit-level=high
-      - name: Run linter
-        run: npm run lint
+  ci:
+    uses: plures/.github/.github/workflows/ci-reusable.yml@main
 
-      - name: Run type check
-        run: npm run typecheck
-      
-      - name: Run tests
-        run: npm test
-      
-      - name: Build package
-        run: npm run build
-      
-      - name: Test prepublish script
-        run: npm run test:prepublish
