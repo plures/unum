@@ -1,6 +1,6 @@
 {
   "name": "@plures/unum",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Reactive Svelte bindings for PluresDB — backend-agnostic, TypeScript-first",
   "type": "module",
   "main": "dist/index.js",

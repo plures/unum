@@ -1,3 +1,13 @@
+## [0.4.1] — 2026-04-17
+
+- fix(lifecycle): label-based retry counter + CI fix priority (72f749d)
+- chore(deps-dev): bump the dev-dependencies group with 4 updates (#89) (629698a)
+- Initial plan (#88) (96051a8)
+- chore(deps-dev): bump the dev-dependencies group with 5 updates (#87) (49f93a9)
+- ci: inline lifecycle workflow — fix schedule failures (aa4c8c2)
+- docs: add structured ROADMAP.md for automated issue generation (7532410)
+- chore: remove redundant workflow — handled by release-reusable.yml (fb0b79e)
+
 ## [0.4.0] — 2026-04-07
 
 - chore: centralize release to org-wide reusable workflow (47974d3)
