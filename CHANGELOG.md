@@ -1,3 +1,7 @@
+## [0.5.0] — 2026-04-18
+
+- feat(lifecycle v11): smart CI failure handling — infra vs code (33ad15d)
+
 ## [0.4.1] — 2026-04-17
 
 - fix(lifecycle): label-based retry counter + CI fix priority (72f749d)
