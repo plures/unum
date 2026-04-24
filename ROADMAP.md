@@ -1,32 +1,32 @@
-# Unum Roadmap
+# unum Roadmap
 
-## Current: v0.4.0
+## Role in OASIS
+Unum is the reactive binding layer between PluresDB and Svelte UI. Every OASIS UI (Radix shell, plugins, and tools) relies on Unum to keep local‑first state synchronized across desktop, mobile, and terminal interfaces.
 
-## Phase 1: Reliability (v0.5)
-- [ ] Connection resilience — auto-reconnect on PluresDB restart
-- [ ] Subscription cleanup — prevent memory leaks on rapid mount/unmount
-- [ ] Error propagation — surface PluresDB errors to Svelte error boundaries
-- [ ] Stale data detection — warn when subscriptions lag behind writes
-- [ ] Test coverage — integration tests with real PluresDB instance
+## Current State
+- Svelte 4/5 compatible bindings are implemented with adapters (PluresDB, memory, Gun, Hyperswarm).
+- Recent CI fixes and dependency maintenance merged.
+- No open issues.
 
-## Phase 2: Performance (v0.6)
-- [ ] Batch updates — debounce rapid writes into single PluresDB transactions
-- [ ] Selective reactivity — only re-render when specific fields change
-- [ ] Virtual collections — lazy-load large datasets with cursor-based pagination
-- [ ] Optimistic updates — update UI immediately, reconcile on sync
-- [ ] Bundle analysis — tree-shakeable exports, minimize shipped code
+## Phase 1 — Reliability & API Stability
+- Adapter conformance tests (reconnect, teardown, memory leak checks).
+- Subscription cleanup under rapid mount/unmount scenarios.
+- Error propagation into Svelte boundaries with actionable metadata.
+- Stale data detection + sync status indicators for UI.
 
-## Phase 3: Advanced Patterns (v0.7)
-- [ ] Computed graphs — derived data that updates reactively across relations
-- [ ] Conflict resolution UI — surface CRDT conflicts to users with merge options
-- [ ] Offline indicator — show sync status in UI
-- [ ] Migration helpers — schema evolution without data loss
-- [ ] Middleware — intercept reads/writes for caching, validation, logging
+## Phase 2 — Performance & Scale
+- Batch/transaction helpers for bursty updates.
+- Selective reactivity to avoid re‑render on unrelated field changes.
+- Large collection/graph pagination helpers.
+- Bundle optimization and tree‑shakeable exports.
 
-## Phase 4: Ecosystem (v1.0)
-- [ ] Chronos integration — automatic state history for all unum stores
-- [ ] Praxis bindings — reactive constraint evaluation in UI
-- [ ] Server-side rendering — SvelteKit SSR with PluresDB hydration
-- [ ] DevTools — browser extension for inspecting unum state
-- [ ] Documentation site — interactive examples, API playground
+## Phase 3 — Advanced Patterns
+- Optimistic updates with rollback hooks.
+- Conflict‑resolution helpers surfaced in UI.
+- Offline‑first policy defaults and documentation.
+- Migration helpers for schema evolution.
 
+## Phase 4 — Ecosystem Integration
+- Chronos integration for automatic state history.
+- Praxis bindings for reactive constraint evaluation in UI.
+- DevTools for inspecting Unum state and subscriptions.
