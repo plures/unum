@@ -1,3 +1,11 @@
+## [0.7.1] — 2026-05-11
+
+- refactor: replace inline lifecycle with reusable workflow call (4e5bdd2)
+- chore(deps-dev): bump jsdom in the dev-dependencies group (#96) (495b7bd)
+- chore(deps-dev): bump the dev-dependencies group with 3 updates (#95) (899e3a9)
+- docs: refresh ROADMAP.md with OASIS strategic alignment (3b9db57)
+- docs: update copilot-instructions with praxis, design-dojo, automation rules (f509dc3)
+
 ## [0.7.0] — 2026-04-23
 
 - feat(release): add target_version input for milestone-driven releases (8bce4ea)
