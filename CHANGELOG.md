@@ -1,3 +1,18 @@
+## [0.7.2] — 2026-07-24
+
+- ci(release): trigger release pipeline on merge to main (#104) (cff03ad)
+- chore(deps-dev): bump the dev-dependencies group with 2 updates (#103) (3d02a33)
+- ci: migrate Tech Doc Writer to shared reusable (ae463aa)
+- chore(deps-dev): bump the dev-dependencies group with 2 updates (#102) (27f1601)
+- chore(deps-dev): bump the dev-dependencies group with 5 updates (#101) (b1b4619)
+- fix(ci): repair tech-doc-writer YAML indentation / remove empty workflow (68752b0)
+- ci(dependabot): v3 - do not auto-merge pre-1.0 (0.x) breaking bumps (0.x minor is breaking; aes-gcm 0.10->0.11 broke main) (ca6c580)
+- ci(dependabot): auto-merge security advisories regardless of semver bump (security over function) (e052fc6)
+- ci: add Dependabot auto-merge workflow (org pileup fix; green low-risk deps auto-merge) (55fefe5)
+- chore(deps-dev): bump the dev-dependencies group with 4 updates (#100) (a2a3e4f)
+- chore(deps-dev): bump the dev-dependencies group across 1 directory with 4 updates (#99) (0a2147e)
+- ci: change release trigger from push-to-main to tag-only (57e5007)
+
 ## [0.7.1] — 2026-05-11
 
 - refactor: replace inline lifecycle with reusable workflow call (4e5bdd2)
