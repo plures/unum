@@ -65,7 +65,7 @@
   "devDependencies": {
     "@plures/praxis": "^2.4.27",
     "@vitest/coverage-v8": "^4.1.1",
-    "jsdom": "^29.0.0",
+    "jsdom": "^30.0.1",
     "svelte": "^5.0.0",
     "typescript": "^7.0.2",
     "vite": "^8.0.3",
