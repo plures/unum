@@ -1,3 +1,7 @@
+## [0.8.0] — 2026-08-08
+
+- feat: add stale data detection and sync status indicators for UI (#110) (d170d24)
+
 ## [0.7.3] — 2026-08-08
 
 - fix: guard subscriptions against post-destroy notifications in rapid mount/unmount (#108) (defc312)

@@ -24,6 +24,9 @@ export { createMemoryAdapter } from './adapters/memory.js';
 export { createGunAdapter } from './adapters/gun.js';
 export { createHyperswarmAdapter } from './adapters/hyperswarm.js';
 
+// Sync status
+export { createSyncStatus, createTrackedSync } from './sync-status.js';
+
 // Utility helpers
 export { isPluresAvailable, safeGet, safeMap, safeChain } from './plures-helper.js';
 
@@ -52,3 +55,10 @@ export type {
   UnumErrorHandler,
   ErrorBoundary,
 } from './errors.js';
+
+export type {
+  SyncState,
+  SyncStatusOptions,
+  SyncStatusSnapshot,
+  SyncStatusRef,
+} from './sync-status.js';
