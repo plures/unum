@@ -6,6 +6,7 @@
  */
 
 import { getRoot } from './context.js';
+import { reportError } from './errors.js';
 import type { DataRef, Unsubscribe } from './types.js';
 
 /**
@@ -41,7 +42,13 @@ export function pluresData<T extends Record<string, unknown> = Record<string, un
   function notify() {
     const snapshot = state as unknown as T;
     for (const cb of subs) {
-      try { cb(snapshot); } catch (e) { console.error('[pluresData]', e); }
+      try { cb(snapshot); } catch (e) {
+        reportError(
+          `Subscriber callback threw in pluresData('${path}')`,
+          { source: 'subscription', operation: 'notify', path, severity: 'warning', retryable: false, context: { error: e } },
+          e,
+        );
+      }
     }
   }
 
@@ -128,7 +135,13 @@ export function pluresData<T extends Record<string, unknown> = Record<string, un
 
     subscribe(cb: (s: T) => void): Unsubscribe {
       subs.push(cb);
-      cb(state as unknown as T);
+      try { cb(state as unknown as T); } catch (e) {
+        reportError(
+          `Subscriber callback threw in pluresData('${path}')`,
+          { source: 'subscription', operation: 'notify', path, severity: 'warning', retryable: false, context: { error: e } },
+          e,
+        );
+      }
       return () => { subs = subs.filter(s => s !== cb); };
     },
 
