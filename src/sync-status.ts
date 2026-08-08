@@ -147,7 +147,7 @@ export function createSyncStatus(options: SyncStatusOptions = {}): SyncStatusRef
   }
 
   function checkStaleness() {
-    if (state === 'error' || state === 'idle') return;
+if (state === 'error' || state === 'idle' || state === 'syncing') return;
     if (lastSyncAt !== null && (Date.now() - lastSyncAt) >= staleAfterMs) {
       if (state !== 'stale') {
         state = 'stale';
