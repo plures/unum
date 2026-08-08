@@ -190,6 +190,10 @@ export function createErrorBoundary(): ErrorBoundary {
  */
 export function emitError(error: UnumError): void {
   if (_handlers.length === 0) {
+    // Avoid crashing the app for non-fatal warnings when the consumer hasn't
+    // registered any handlers/boundaries yet.
+    if (error.meta.severity === 'warning') return;
+
     queueMicrotask(() => { throw error; });
     return;
   }
