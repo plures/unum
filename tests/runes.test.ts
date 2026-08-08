@@ -147,6 +147,21 @@ describe('subscription cleanup — rapid mount/unmount', () => {
     expect(() => todos.destroy()).not.toThrow();
   });
 
+  it('destroy during notify stops subsequent subscribers', () => {
+    const todos = pluresData('cleanup3');
+    let first = true;
+    todos.subscribe(() => {
+      if (first) { first = false; return; }
+      todos.destroy();
+    });
+    let secondCalled = 0;
+    todos.subscribe(() => { secondCalled++; });
+    secondCalled = 0; // ignore initial subscribe call
+
+    todos.add({ text: 'Y', id: 'y1' });
+    expect(secondCalled).toBe(0);
+  });
+
   it('rapid create/destroy cycle does not leak', () => {
     const root = getRoot();
     const refs: ReturnType<typeof pluresData>[] = [];
