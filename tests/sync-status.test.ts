@@ -66,6 +66,16 @@ describe('createSyncStatus', () => {
     status.destroy();
   });
 
+  it('does not mark stale while syncing', () => {
+    vi.useFakeTimers();
+    const status = createSyncStatus({ staleAfterMs: 100, checkIntervalMs: 50 });
+    status.markSynced();
+    status.markSyncing();
+
+    vi.advanceTimersByTime(150);
+    expect(status.current.state).toBe('syncing');
+    status.destroy();
+  });
   it('recovers from stale when new data arrives', () => {
     vi.useFakeTimers();
     const status = createSyncStatus({ staleAfterMs: 100, checkIntervalMs: 50 });
