@@ -1,3 +1,10 @@
+## [0.7.3] — 2026-08-08
+
+- fix: guard subscriptions against post-destroy notifications in rapid mount/unmount (#108) (defc312)
+- chore(deps-dev): bump vite in the dev-dependencies group (#107) (7a51985)
+- chore(deps-dev): bump the dev-dependencies group with 2 updates (#106) (91b6f43)
+- chore: delegate dependabot-auto-merge.yml to org reusable template (#105) (885af1b)
+
 ## [0.7.2] — 2026-07-24
 
 - ci(release): trigger release pipeline on merge to main (#104) (cff03ad)

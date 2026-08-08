@@ -35,13 +35,16 @@ export function pluresData<T extends Record<string, unknown> = Record<string, un
   let state: Record<string, unknown> = {};
   let subs: Array<(s: T) => void> = [];
   const unsubs: Unsubscribe[] = [];
+  let destroyed = false;
 
   const root = getRoot();
   const ref = root.get(path);
 
   function notify() {
+    if (destroyed) return;
     const snapshot = state as unknown as T;
     for (const cb of subs) {
+      if (destroyed) return;
       try { cb(snapshot); } catch (e) {
         reportError(
           `Subscriber callback threw in pluresData('${path}')`,
@@ -55,6 +58,7 @@ export function pluresData<T extends Record<string, unknown> = Record<string, un
   if (id) {
     // Single item binding
     const u = ref.get(id).on((data: unknown) => {
+      if (destroyed) return;
       if (data) {
         state = { ...(data as Record<string, unknown>) };
         notify();
@@ -64,6 +68,7 @@ export function pluresData<T extends Record<string, unknown> = Record<string, un
   } else {
     // Collection binding
     const u = ref.map().on((data: unknown, key?: string) => {
+      if (destroyed) return;
       if (!key || key === '_') return;
       if (data === null || data === undefined) {
         const next = { ...state };
@@ -146,6 +151,8 @@ export function pluresData<T extends Record<string, unknown> = Record<string, un
     },
 
     destroy() {
+      if (destroyed) return;
+      destroyed = true;
       for (const u of unsubs) u();
       unsubs.length = 0;
       subs = [];
