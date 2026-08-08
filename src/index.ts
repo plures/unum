@@ -16,9 +16,6 @@ export {
   UnumError,
   onUnumError,
   createErrorBoundary,
-  clearErrorHandlers,
-  emitError,
-  reportError,
 } from './errors.js';
 
 // Adapters
