@@ -122,7 +122,7 @@ export function clearErrorHandlers(): void {
  * Note: boundaries register a global handler via `onUnumError()`; scoping is by
  * lifecycle (create/destroy), not automatic component-subtree isolation.
  * Use metadata (e.g. `meta.path`) to filter if you need per-subtree behavior.
- */
+ *
  * @example
  * ```svelte
  * <script>
