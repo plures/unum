@@ -120,6 +120,67 @@ describe('pluresData', () => {
   });
 });
 
+describe('subscription cleanup — rapid mount/unmount', () => {
+  beforeEach(() => {
+    initDb(createMemoryAdapter());
+  });
+  afterEach(() => destroyDb());
+
+  it('destroy prevents further notifications', () => {
+    const todos = pluresData('cleanup1');
+    let callCount = 0;
+    todos.subscribe(() => { callCount++; });
+    // subscribe fires immediately with current state
+    expect(callCount).toBe(1);
+    todos.destroy();
+    // Writing after destroy should not trigger subscribers
+    const root = getRoot();
+    root.get('cleanup1').get('late').put({ text: 'Late' });
+    expect(callCount).toBe(1);
+  });
+
+  it('destroy is idempotent (safe to call multiple times)', () => {
+    const todos = pluresData('cleanup2');
+    todos.add({ text: 'X', id: 'x1' });
+    todos.destroy();
+    // Second call should not throw
+    expect(() => todos.destroy()).not.toThrow();
+  });
+
+  it('rapid create/destroy cycle does not leak', () => {
+    const root = getRoot();
+    const refs: ReturnType<typeof pluresData>[] = [];
+    // Simulate rapid mount/unmount (e.g. router transitions)
+    for (let i = 0; i < 50; i++) {
+      const ref = pluresData('rapid');
+      refs.push(ref);
+      ref.destroy();
+    }
+    // After all destroyed, writes should not trigger any callbacks
+    let notified = false;
+    // Create a fresh reference to listen
+    const fresh = pluresData('rapid');
+    fresh.subscribe(() => { notified = true; });
+    notified = false; // reset after initial subscribe call
+    root.get('rapid').get('new').put({ v: 1 });
+    // Only the fresh (non-destroyed) ref should receive
+    expect(notified).toBe(true);
+    fresh.destroy();
+  });
+
+  it('no notifications after destroy for single item binding', () => {
+    const root = getRoot();
+    root.get('profiles').get('p1').put({ name: 'A' });
+    const profile = pluresData('profiles', 'p1');
+    let callCount = 0;
+    profile.subscribe(() => { callCount++; });
+    expect(callCount).toBe(1);
+    profile.destroy();
+    root.get('profiles').get('p1').put({ name: 'B' });
+    expect(callCount).toBe(1);
+  });
+});
+
 describe('pluresDerived', () => {
   beforeEach(() => {
     initDb(createMemoryAdapter());
