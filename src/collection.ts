@@ -29,6 +29,7 @@
  */
 
 import { getRoot } from './context.js';
+import { reportError } from './errors.js';
 import type {
   CollectionItem,
   CollectionQuery,
@@ -91,7 +92,13 @@ export function createCollection<
   function notify(): void {
     const items = snapshot();
     for (const cb of collectionSubscribers) {
-      try { cb(items); } catch (e) { console.error('[createCollection]', e); }
+      try { cb(items); } catch (e) {
+        reportError(
+          `Subscriber callback threw in createCollection('${path}')`,
+          { source: 'subscription', operation: 'notify', path, severity: 'warning', retryable: false, context: { error: e } },
+          e,
+        );
+      }
     }
   }
 
@@ -169,7 +176,13 @@ export function createCollection<
 
       function notifyQuerySubscribers(value: R): void {
         for (const cb of querySubscribers) {
-          try { cb(value); } catch (e) { console.error('[createCollection.query]', e); }
+          try { cb(value); } catch (e) {
+            reportError(
+              `Query subscriber threw in createCollection('${path}').query()`,
+              { source: 'query', operation: 'notify', path, severity: 'warning', retryable: false, context: { error: e } },
+              e,
+            );
+          }
         }
       }
 
@@ -220,7 +233,13 @@ export function createCollection<
 
     subscribe(cb): Unsubscribe {
       collectionSubscribers.push(cb);
-      cb(snapshot());
+      try { cb(snapshot()); } catch (e) {
+        reportError(
+          `Subscriber callback threw in createCollection('${path}')`,
+          { source: 'subscription', operation: 'notify', path, severity: 'warning', retryable: false, context: { error: e } },
+          e,
+        );
+      }
       return () => {
         collectionSubscribers = collectionSubscribers.filter(s => s !== cb);
       };

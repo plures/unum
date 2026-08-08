@@ -11,6 +11,13 @@ export { PluresStore, createPluresStore } from './store.js';
 export { useGraph } from './graph.js';
 export { createCollection } from './collection.js';
 
+// Error propagation
+export {
+  UnumError,
+  onUnumError,
+  createErrorBoundary,
+} from './errors.js';
+
 // Adapters
 export { createPluresDbAdapter } from './adapters/pluresdb.js';
 export { createMemoryAdapter } from './adapters/memory.js';
@@ -40,6 +47,14 @@ export type {
   CollectionQuery,
   CollectionRef,
 } from './types.js';
+
+export type {
+  ErrorSeverity,
+  ErrorSource,
+  UnumErrorMeta,
+  UnumErrorHandler,
+  ErrorBoundary,
+} from './errors.js';
 
 export type {
   SyncState,
