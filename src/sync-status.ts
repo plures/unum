@@ -186,11 +186,12 @@ export function createSyncStatus(options: SyncStatusOptions = {}): SyncStatusRef
       notify();
     },
 
-    markError(err: Error) {
-      state = 'error';
-      error = err;
-      notify();
-    },
+markError(err: Error) {
+  state = 'error';
+  error = err;
+  stopInterval();
+  notify();
+},
 
     reset() {
       state = 'idle';
