@@ -117,11 +117,12 @@ export function clearErrorHandlers(): void {
 // ---------------------------------------------------------------------------
 
 /**
- * A scoped error boundary for a subtree of components.
+ * An error boundary instance for a component scope.
  *
- * Captures errors and exposes reactive `error` / `errors` accessors that
- * Svelte components can read to display contextual error UI.
- *
+ * Note: boundaries register a global handler via `onUnumError()`; scoping is by
+ * lifecycle (create/destroy), not automatic component-subtree isolation.
+ * Use metadata (e.g. `meta.path`) to filter if you need per-subtree behavior.
+ */
  * @example
  * ```svelte
  * <script>
