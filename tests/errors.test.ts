@@ -59,7 +59,10 @@ describe('onUnumError', () => {
     const errors: UnumError[] = [];
     const unsub = onUnumError((err) => errors.push(err));
     unsub();
+    // Register a no-op handler so reportError doesn't throw async
+    const cleanup = onUnumError(() => {});
     reportError('ignored', { source: 'adapter', operation: 'on', severity: 'error', retryable: false });
+    cleanup();
     expect(errors).toHaveLength(0);
   });
 
@@ -96,7 +99,10 @@ describe('createErrorBoundary', () => {
   it('destroy() stops capturing', () => {
     const boundary = createErrorBoundary();
     boundary.destroy();
+    // Register a no-op handler so reportError doesn't throw async
+    const cleanup = onUnumError(() => {});
     reportError('late', { source: 'adapter', operation: 'on', severity: 'error', retryable: false });
+    cleanup();
     expect(boundary.errors).toHaveLength(0);
   });
 });

@@ -88,16 +88,13 @@ let _handlers: UnumErrorHandler[] = [];
  * @returns A function that removes this handler when called.
  *
  * @example
- * ```svelte
- * <script>
- *   import { onUnumError } from '@plures/unum';
- *   import { onDestroy } from 'svelte';
+ * ```ts
+ * import { onUnumError } from '@plures/unum';
  *
- *   const unsub = onUnumError((err) => {
- *     console.error(`[${err.meta.source}] ${err.message}`);
- *   });
- *   onDestroy(unsub);
- * </script>
+ * onUnumError((err) => {
+ *   if (err.meta.retryable) showRetryToast(err.message);
+ *   else showFatalDialog(err.message);
+ * });
  * ```
  */
 export function onUnumError(handler: UnumErrorHandler): () => void {
@@ -185,14 +182,15 @@ export function createErrorBoundary(): ErrorBoundary {
 /**
  * Emit an `UnumError` to all registered handlers.
  *
- * If no handlers are registered, falls back to `console.error` so errors
- * are never silently swallowed.
+ * If no handlers are registered, the error is thrown asynchronously so it
+ * surfaces in Svelte's error boundary or window error handlers without
+ * breaking the current call stack.
  *
  * @internal
  */
 export function emitError(error: UnumError): void {
   if (_handlers.length === 0) {
-    console.error(`[unum] ${error.meta.source}/${error.meta.operation}: ${error.message}`);
+    queueMicrotask(() => { throw error; });
     return;
   }
   for (const handler of _handlers) {

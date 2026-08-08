@@ -37,6 +37,7 @@ export class PluresStore<T = unknown> {
   private unsub: Unsubscribe | null = null;
   private isUpdatingFromDb = false;
   private readonly _ref: ChainNode;
+  private readonly _path: string;
 
   /**
    * @param path         - Path in PluresDB to bind to (e.g. `'settings/theme'`).
@@ -44,6 +45,7 @@ export class PluresStore<T = unknown> {
    */
   constructor(path: string, initialValue?: T) {
     this.store = writable<T>(initialValue as T);
+    this._path = path;
     this._ref = getRoot().get(path);
 
     // Subscribe to DB updates
@@ -68,8 +70,8 @@ export class PluresStore<T = unknown> {
         this._ref.put(value);
       } catch (e) {
         reportError(
-          `Failed to persist value at PluresStore path`,
-          { source: 'mutation', operation: 'put', severity: 'error', retryable: true, context: { value } },
+          `Failed to persist value at PluresStore('${this._path}')`,
+          { source: 'mutation', operation: 'put', path: this._path, severity: 'error', retryable: true, context: { value } },
           e,
         );
       }
@@ -85,8 +87,8 @@ export class PluresStore<T = unknown> {
           this._ref.put(next);
         } catch (e) {
           reportError(
-            `Failed to persist updated value at PluresStore path`,
-            { source: 'mutation', operation: 'put', severity: 'error', retryable: true, context: { value: next } },
+            `Failed to persist updated value at PluresStore('${this._path}')`,
+            { source: 'mutation', operation: 'put', path: this._path, severity: 'error', retryable: true, context: { value: next } },
             e,
           );
         }
