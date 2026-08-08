@@ -43,6 +43,7 @@ export function pluresData<T extends Record<string, unknown> = Record<string, un
     if (destroyed) return;
     const snapshot = state as unknown as T;
     for (const cb of subs) {
+      if (destroyed) return;
       try { cb(snapshot); } catch (e) { console.error('[pluresData]', e); }
     }
   }
