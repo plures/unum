@@ -1,3 +1,7 @@
+## [0.9.0] — 2026-08-08
+
+- feat: error propagation into Svelte boundaries with actionable metadata (#109) (03ea095)
+
 ## [0.8.0] — 2026-08-08
 
 - feat: add stale data detection and sync status indicators for UI (#110) (d170d24)
